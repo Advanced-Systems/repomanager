@@ -23,4 +23,3 @@ foreach ($Import in @($Public + $Private)) {
 }
 
 Export-ModuleMember -Function $Public.Basename -Alias *
-
