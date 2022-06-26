@@ -3,12 +3,13 @@ function Get-Configuration {
 
     if (-not (Test-Path -Path $ConfigPath))
     {
-        $DefaultSettings = [PSCustomObject]@{
-            "Path" = @([RepositoryContainer]::new([System.Environment]::GetFolderPath("Desktop"), $true))
-            "Protocol" = "SSH"
-        }
+        $ReposDirectory = Join-Path -Path $([System.Environment]::GetFolderPath("Desktop")) -ChildPath "repos"
+        $Path = @([RepoManagerContainer]::new($ReposDirectory, $true))
+        $Protocol = "SSH"
 
-        ConvertTo-Json $DefaultSettings | Out-File -FilePath $ConfigPath
+        $DefaultSettings = [RepoManagerConfiguration]::new($Path, $Protocol)
+
+        ConvertTo-Json -InputObject $DefaultSettings | Out-File -FilePath $ConfigPath
     }
 
     Write-Output $ConfigPath
