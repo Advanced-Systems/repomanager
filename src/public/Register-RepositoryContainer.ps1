@@ -1,4 +1,4 @@
-function Register-RepositoryPath {
+function Register-RepositoryContainer {
     <#
         .SYNOPSIS
         Register a new repository path in this module's configuration file. These paths can be used as a destination path for local repository clones.
@@ -21,12 +21,12 @@ function Register-RepositoryPath {
         $RepoManagerContainer = [RepoManagerContainer]::new($Path, $AsDefault.IsPresent)
 
         if ($AsDefault) {
-            $ConfigFile.Path | ForEach-Object { $_.IsDefault = $false }
+            $ConfigFile.Container | ForEach-Object { $_.IsDefault = $false }
             Write-Verbose -Message "Set '$($RepoManagerContainer.Name)' as default repository container"
         }
 
-        $ConfigFile.Path = $ConfigFile.Path.Where({ $_.Name -ne $RepoManagerContainer.Name -and $_ -ne $RepoManagerContainer.ToString() })
-        $ConfigFile.Path.Add($RepoManagerContainer)
+        $ConfigFile.Container = $ConfigFile.Container.Where({ $_.Name -ne $RepoManagerContainer.Name -and $_ -ne $RepoManagerContainer.ToString() })
+        $ConfigFile.Container.Add($RepoManagerContainer)
         $ConfigFile | ConvertTo-Json | Out-File -FilePath $ConfigPath
     }
     end {

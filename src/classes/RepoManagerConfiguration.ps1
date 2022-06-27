@@ -1,9 +1,9 @@
 class RepoManagerConfiguration {
-    [ValidateNotNullOrEmpty()][RepoManagerContainer[]] $Path
+    [ValidateNotNullOrEmpty()][RepoManagerContainer[]] $Container
     [ValidateNotNullOrEmpty()][string] $Protocol
 
-    RepoManagerConfiguration([RepoManagerContainer[]] $Path, [string] $Protocol) {
-        $this.Path = $Path
+    RepoManagerConfiguration([RepoManagerContainer[]] $Container, [string] $Protocol) {
+        $this.Container = $Container
         $this.Protocol = $Protocol
     }
 }

@@ -5,10 +5,10 @@ function Set-Configuration {
     {
         $ReposDirectory = Join-Path -Path $([System.Environment]::GetFolderPath("Desktop")) -ChildPath "repos"
         New-Item -ItemType Directory -Path $ReposDirectory -Force | Out-Null
-        $Path = @([RepoManagerContainer]::new($ReposDirectory, $true))
+        $Container = @([RepoManagerContainer]::new($ReposDirectory, $true))
         $Protocol = "SSH"
 
-        $DefaultSettings = [RepoManagerConfiguration]::new($Path, $Protocol)
+        $DefaultSettings = [RepoManagerConfiguration]::new($Container, $Protocol)
 
         ConvertTo-Json -InputObject $DefaultSettings | Out-File -FilePath $ConfigPath
     }

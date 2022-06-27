@@ -15,7 +15,7 @@ function New-Repository {
     begin {
         $ConfigPath = Get-ConfigurationPath
         $ConfigFile = Get-Content -Path $ConfigPath -Raw | ConvertFrom-Json
-        $Path = if ($Path) { $Path } else { $ConfigFile.Path | Where-Object IsDefault | Select-Object -Expand Path -First 1 }
+        $Path = if ($Path) { $Path } else { $ConfigFile.Container | Where-Object IsDefault | Select-Object -Expand Path -First 1 }
     }
     process {
         foreach ($u in $Uri) {
