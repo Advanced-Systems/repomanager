@@ -4,6 +4,7 @@ function Set-Configuration {
     if (-not (Test-Path -Path $ConfigPath))
     {
         $ReposDirectory = Join-Path -Path $([System.Environment]::GetFolderPath("Desktop")) -ChildPath "repos"
+        New-Item -ItemType Directory -Path $ReposDirectory -Force | Out-Null
         $Path = @([RepoManagerContainer]::new($ReposDirectory, $true))
         $Protocol = "SSH"
 
