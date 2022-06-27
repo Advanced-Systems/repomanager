@@ -1,5 +1,5 @@
-function New-Repository {
-    [Alias("nrepo")]
+function Clone-Repository {
+    [Alias("crepo")]
     [CmdletBinding()]
     param(
         [Parameter(Position = 0, Mandatory, ValueFromPipeline)]

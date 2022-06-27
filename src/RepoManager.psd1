@@ -20,8 +20,8 @@
     FormatsToProcess = @()
 
     FunctionsToExport = @(
+        "Clone-Repository",
         "Get-AllBranches",
-        "New-Repository",
         "Register-RepositoryContainer"
     )
 
@@ -30,7 +30,7 @@
     VariablesToExport = @()
 
     AliasesToExport = @(
-        "nrepo"
+        "crepo"
     )
 
     FileList = @(
@@ -38,7 +38,7 @@
         "RepoManager.psm1",
         "classes\RepoManagerConfiguration.ps1",
         "classes\RepoManagerContainer.ps1",
-        "public\New-Repository.ps1",
+        "public\Clone-Repository.ps1",
         "public\Register-RepositoryContainer.ps1"
     )
 
