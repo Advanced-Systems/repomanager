@@ -12,7 +12,8 @@ function Register-RepositoryPath {
         [switch] $AsDefault
     )
     begin {
-        $ConfigPath = Get-Configuration
+        Set-Configuration
+        $ConfigPath = Get-ConfigurationPath
         $ConfigFile = Get-Content -Path $ConfigPath -Raw | ConvertFrom-Json
         New-Item -ItemType Directory -Path $Path -Force | Out-Null
     }
