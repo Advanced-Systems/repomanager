@@ -11,6 +11,7 @@ function Register-RepositoryContainer {
         [Parameter()]
         [switch] $AsDefault
     )
+
     begin {
         Set-Configuration
         $ConfigPath = Get-ConfigurationPath

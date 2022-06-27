@@ -8,6 +8,7 @@ function Get-AllBranches {
         $GitPath = Join-Path -Path $Path -ChildPath ".git"
         Push-Location -Path $Path
     }
+
     process {
         if (Test-Path -Path $GitPath) {
             git fetch --all
