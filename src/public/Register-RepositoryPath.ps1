@@ -18,18 +18,18 @@ function Register-RepositoryPath {
         New-Item -ItemType Directory -Path $Path -Force | Out-Null
     }
     process {
-        $RepositoryPath = [RepoManagerContainer]::new($Path, $AsDefault.IsPresent)
+        $RepoManagerContainer = [RepoManagerContainer]::new($Path, $AsDefault.IsPresent)
 
         if ($AsDefault) {
-            $ConfigFile.Path | ForEach-Object { $_.IsDefault=$false }
-            Write-Verbose -Message "Set '$($RepositoryPath.Name)' as default repository container"
+            $ConfigFile.Path | ForEach-Object { $_.IsDefault = $false }
+            Write-Verbose -Message "Set '$($RepoManagerContainer.Name)' as default repository container"
         }
 
-        $ConfigFile.Path = $ConfigFile.Path.Where({ $_.Name -ne $RepositoryPath.Name -and $_ -ne "RepoManagerContainer" })
-        $ConfigFile.Path.Add($RepositoryPath)
+        $ConfigFile.Path = $ConfigFile.Path.Where({ $_.Name -ne $RepoManagerContainer.Name -and $_ -ne $RepoManagerContainer.ToString() })
+        $ConfigFile.Path.Add($RepoManagerContainer)
         $ConfigFile | ConvertTo-Json | Out-File -FilePath $ConfigPath
     }
     end {
-        Write-Output $ConfigFile
+        Write-Verbose $ConfigFile
     }
 }
