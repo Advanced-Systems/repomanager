@@ -20,8 +20,9 @@
     FormatsToProcess = @()
 
     FunctionsToExport = @(
+        "Get-AllBranches",
         "New-Repository",
-        "Register-RepositoryPath"
+        "Register-RepositoryContainer"
     )
 
     CmdletsToExport = @()
@@ -34,8 +35,11 @@
 
     FileList = @(
         "RepoManager.psd1",
+        "RepoManager.psm1",
+        "classes\RepoManagerConfiguration.ps1",
+        "classes\RepoManagerContainer.ps1",
         "public\New-Repository.ps1",
-        "public\Register-RepositoryPath.ps1"
+        "public\Register-RepositoryContainer.ps1"
     )
 
     PrivateData = @{
