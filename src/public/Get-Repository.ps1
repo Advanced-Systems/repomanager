@@ -1,5 +1,6 @@
 function Get-Repository {
     [Alias("grepo")]
+    [OutputType([RepoManagerRepository])]
     [CmdletBinding()]
     param(
         [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Name")]

@@ -19,6 +19,10 @@
     RequiredModules = @()
     FormatsToProcess = @()
 
+    ScriptsToProcess= @(
+        "init\ClassLoader.ps1"
+    )
+
     FunctionsToExport = @(
         "Clone-Repository",
         "Get-AllBranches",
