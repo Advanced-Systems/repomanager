@@ -6,7 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LibGit2Sharp" Version="0.26.2" />
+    <PackageReference Include="libgit2sharp" Version="0.26.2" />
     <PackageReference Include="newtonsoft.json" Version="13.0.1" />
     <PackageReference Include="powershellstandard.library" Version="5.1.1" />
   </ItemGroup>

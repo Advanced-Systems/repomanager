@@ -7,9 +7,12 @@
             "type": "shell",
             "args": [
                 "publish",
-                "src",
+                "/property:Configuration=Debug",
                 "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
+                "--self-contained=false",
+                "--runtime=win-x64",
+                "/consoleloggerparameters:NoSummary",
+                "src",
             ],
             "group": "build",
             "presentation": {

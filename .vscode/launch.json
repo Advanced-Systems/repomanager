@@ -11,7 +11,7 @@
                 "-NoExit",
                 "-NoLogo",
                 "-Command",
-                "Import-Module \"${workspaceFolder}/src/bin/Debug/netstandard2.0/publish/RepoManager.dll\""
+                "Import-Module \"${workspaceFolder}/src/bin/Debug/netstandard2.0/win-x64/publish/RepoManager.dll\""
             ],
             "cwd": "${workspaceFolder}/src",
             "console": "externalTerminal",
