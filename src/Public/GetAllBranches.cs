@@ -1,9 +1,13 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Collections.Generic;
 
 using System.Management.Automation;
+
 using LibGit2Sharp;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace RepoManager
 {
@@ -31,10 +35,12 @@ namespace RepoManager
         {
             try
             {
-                Repository = new Repository(GitPath);
-                var remote = Repository.Network.Remotes["origin"];
-                var options = new FetchOptions { Prune = true };
-                Commands.Fetch(Repository, remote.Name, remote.FetchRefSpecs.Select(x => x.Specification), options, "Fetching remote");
+                var remoteBranches = Git.GetRemoteBranches(GitPath);
+
+                foreach (string branch in remoteBranches)
+                {
+                    WriteObject(branch);
+                }
             }
             catch (FileNotFoundException exception)
             {
