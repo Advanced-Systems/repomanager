@@ -25,7 +25,13 @@ namespace RepoManager
         {
             ConfigurationManager.Init();
             Configuration = ConfigurationManager.Configuration;
-            Path = MyInvocation.BoundParameters.ContainsKey("Path") ? System.IO.Path.GetFullPath(Path) : Configuration.Container.Where(repo => repo.IsDefault).Select(repo => repo.Path).First();
+
+            Path = MyInvocation.BoundParameters.ContainsKey("Path")
+                 ? System.IO.Path.GetFullPath(Path)
+                 : Configuration.Container
+                    .Where(repo => repo.IsDefault)
+                    .Select(repo => repo.Path)
+                    .First();
         }
 
         protected override void ProcessRecord()
