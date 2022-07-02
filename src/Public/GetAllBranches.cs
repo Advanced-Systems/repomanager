@@ -1,13 +1,9 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Collections.Generic;
+using System.Threading.Tasks;
 
 using System.Management.Automation;
-
-using LibGit2Sharp;
-using System.Diagnostics;
-using System.Text.RegularExpressions;
 
 namespace RepoManager
 {
@@ -21,8 +17,6 @@ namespace RepoManager
 
         private string CurrentWorkingDirectory { get; set; }
 
-        private Repository Repository { get; set; }
-
         protected override void BeginProcessing()
         {
             CurrentWorkingDirectory = CurrentProviderLocation("FileSystem").ProviderPath;
@@ -35,12 +29,7 @@ namespace RepoManager
         {
             try
             {
-                var remoteBranches = Git.GetRemoteBranches(GitPath);
-
-                foreach (string branch in remoteBranches)
-                {
-                    WriteObject(branch);
-                }
+                Git.TrackAllBranches(GitPath, WriteVerbose, WriteWarning);
             }
             catch (FileNotFoundException exception)
             {
