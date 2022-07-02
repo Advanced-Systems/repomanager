@@ -10,7 +10,6 @@
                 "/property:Configuration=Debug",
                 "/property:GenerateFullPaths=true",
                 "--self-contained=false",
-                "--runtime=win-x64",
                 "/consoleloggerparameters:NoSummary",
                 "src",
             ],
