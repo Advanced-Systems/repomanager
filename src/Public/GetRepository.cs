@@ -10,10 +10,10 @@ namespace RepoManager
     [Cmdlet(VerbsCommon.Get, "Repository")]
     public class GetRepositoryCommand : PSCmdlet
     {
-        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "Name", HelpMessage = "Name of a cloned repository")]
+        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "Name", HelpMessage = "Repository name")]
         public List<string> Name { get; set; }
 
-        [Parameter(ParameterSetName = "Name", HelpMessage = "Path of a repository container")]
+        [Parameter(ParameterSetName = "Name", HelpMessage = "Path to repository container")]
         public string Path { get; set; }
 
         [Parameter(ParameterSetName = "All")]
@@ -23,8 +23,8 @@ namespace RepoManager
 
         protected override void BeginProcessing()
         {
-            ConfigurationManager.Init();
-            Configuration = ConfigurationManager.Configuration;
+            var configurationManager = new ConfigurationManager();
+            Configuration = configurationManager.Configuration;
 
             Path = MyInvocation.BoundParameters.ContainsKey("Path")
                  ? System.IO.Path.GetFullPath(Path)
