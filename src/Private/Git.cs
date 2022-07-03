@@ -10,6 +10,17 @@ namespace RepoManager
 {
     internal class Git
     {
+        public static async Task<string> GetConfigAsync(string key, Scope scope)
+        {
+            var configTask = await Cli.Wrap("git")
+                .WithArguments(new string[] { "config", $"--{scope.ToString().ToLower()}", key })
+                .ExecuteBufferedAsync();
+
+            return configTask.StandardOutput.RemoveLineBreaks();
+        }
+
+        public static string GetConfig(string key, Scope scope) => GetConfigAsync(key, scope).GetAwaiter().GetResult();
+
         public static async Task FetchAsync(string workingDirectory, bool all = false)
         {
             var fetchTask = await Cli.Wrap("git")
