@@ -1,16 +1,19 @@
 using System;
 using System.IO;
+
 using Newtonsoft.Json;
 
 namespace RepoManager
 {
-    internal static class ConfigurationManager
+    internal class ConfigurationManager
     {
-        public static string ConfigurationDirectory
+        public const string ModuleName = "RepoManager";
+
+        public string ConfigurationDirectory
         {
             get
             {
-                string configurationDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "RepoManager");
+                string configurationDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ModuleName);
 
                 if (!Directory.Exists(configurationDirectory))
                 {
@@ -21,13 +24,29 @@ namespace RepoManager
             }
         }
 
-        public static string ConfigurationPath => Path.Combine(ConfigurationDirectory, "config.json");
+        public string ConfigurationPath => Path.Combine(ConfigurationDirectory, "config.json");
 
-        public static JsonSerializerSettings JsonSettings => new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore, Formatting = Formatting.Indented };
+        public JsonSerializerSettings JsonSettings
+        {
+            get
+            {
+                return new JsonSerializerSettings()
+                {
+                    NullValueHandling = NullValueHandling.Ignore,
+                    Formatting = Formatting.Indented
+                };
+            }
+        }
 
-        public static Configuration Configuration => JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(ConfigurationPath), JsonSettings);
+        public Configuration Configuration
+        {
+            get
+            {
+                return JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(ConfigurationPath), JsonSettings);
+            }
+        }
 
-        public static void Init()
+        public ConfigurationManager()
         {
             string configurationPath = ConfigurationPath;
 
