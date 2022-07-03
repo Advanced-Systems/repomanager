@@ -32,13 +32,16 @@
 
     CmdletsToExport = @(
         'Import-Repository',
+        'Get-Branch',
         'Get-Repository',
-        'Get-AllBranches'
+        'Remove-Repository'
     )
 
     AliasesToExport = @(
         'clone',    # Import-Repository
-        'grepo'     # Get-Repository
+        'track',    # Get-Branch
+        'grepo',    # Get-Repository
+        'rrepo'     # Remove-Repository
     )
 
     # VariablesToExport = '*'
