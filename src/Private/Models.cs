@@ -1,10 +1,18 @@
 using System;
 using System.Collections.Generic;
+
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace RepoManager
 {
+    internal enum Scope
+    {
+        Local,
+        Global,
+        System
+    }
+
     internal enum Protocol
     {
         HTTP,
@@ -39,9 +47,9 @@ namespace RepoManager
     [Serializable]
     internal class Configuration
     {
-        public List<RepositoryContainer> Container { get; set; } = new List<RepositoryContainer>() { new RepositoryContainer() };
+        public List<RepositoryContainer> Container { get; set; }
 
         [JsonConverter(typeof(StringEnumConverter))]
-        public Protocol Protocol { get; set; } = Protocol.SSH;
+        public Protocol Protocol { get; set; }
     }
 }
