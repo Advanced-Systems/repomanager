@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
@@ -62,7 +63,7 @@ namespace RepoManager
                      ? Protocol
                      : Configuration.Protocol.ToString();
 
-            Hostname = Protocol.Equals("SSH") ? "git@github.com" : "https://github.com";
+            Hostname = Protocol.Equals("SSH") ? "git@github.com:" : "https://github.com/";
         }
 
         protected override void ProcessRecord()
@@ -71,16 +72,36 @@ namespace RepoManager
             {
                 var repoNames = Task.Run(() => Utils.GetAllRepositoryNames(User)).Result;
                 int count = repoNames.Count();
+                int activityId = 0;
 
                 foreach (string repoName in repoNames)
                 {
-                    // TODO: add progress bar and clone repositories
-                    string uri = $"{Hostname}/{User}/{repoName}.git";
+                    string uri = $"{Hostname}{User}/{repoName}.git";
                     string repoPath = System.IO.Path.Combine(Path, repoName);
+                    int percent = Convert.ToInt32(Math.Round(activityId * 100F / count));
 
-                    // TODO: also track all branches if switch is present
+                    var progress = new ProgressRecord(activityId, uri, $"Cloning {repoName} to '{Path}' . . .");
+                    progress.PercentComplete = percent;
+                    progress.StatusDescription = $"{percent}%";
+
+                    WriteProgress(progress);
+
+                    if (!Directory.Exists(repoPath) || !Directory.EnumerateFileSystemEntries(repoPath).Any())
+                    {
+                        Git.CloneRepository(uri, repoPath);
+                    }
+                    else
+                    {
+                        WriteWarning($"Destination path '{repoPath}' already exists and is not an empty directory");
+                    }
+
+                    if (TrackAllBranches.IsPresent)
+                    {
+                        Git.TrackAllBranches(System.IO.Path.Combine(repoPath, ".git"), WriteVerbose, WriteWarning);
+                    }
+
                     // TODO: return repository object
-                    WriteObject(repoPath);
+                    activityId++;
                 }
             }
             else if (!string.IsNullOrEmpty(User))
@@ -101,7 +122,7 @@ namespace RepoManager
             {
                 foreach (string u in Uri)
                 {
-                    string repoName = u.Split('/').Last().Split('.')[0];
+                    string repoName = u.Split('/').Last().Split('.').First();
                     string repoPath = System.IO.Path.Combine(Path, repoName);
                     string gitPath = System.IO.Path.Combine(repoPath, ".git");
 
