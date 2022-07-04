@@ -7,7 +7,7 @@
 #
 
 @{
-    RootModule = './bin/Debug/netstandard2.1/publish/RepoManager.dll'
+    RootModule = '.\bin\Debug\netstandard2.1\publish\RepoManager.dll'
     ModuleVersion = '1.0.0'
     # CompatiblePSEditions = @()
     GUID = '8e96f76d-185e-477b-bbd8-857b4c82f3ca'
