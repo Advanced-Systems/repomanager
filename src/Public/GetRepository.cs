@@ -10,6 +10,7 @@ namespace RepoManager
     [Cmdlet(VerbsCommon.Get, "Repository")]
     public class GetRepositoryCommand : PSCmdlet
     {
+        [ValidateNotNullOrEmpty()]
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "Name", HelpMessage = "Repository name")]
         public List<string> Name { get; set; }
 

@@ -10,6 +10,7 @@ namespace RepoManager
     [Cmdlet(VerbsCommon.Remove, "Repository", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.High)]
     public class RemoveRepositoryCommand : PSCmdlet
     {
+        [ValidateNotNullOrEmpty()]
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true, HelpMessage = "Repository to remove")]
         public List<string> Name { get; set; }
 
