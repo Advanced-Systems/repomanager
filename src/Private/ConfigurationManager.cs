@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
 
 using Newtonsoft.Json;
 
@@ -52,7 +53,14 @@ namespace RepoManager
 
             if (!File.Exists(configurationPath))
             {
-                string data = JsonConvert.SerializeObject(new Configuration(), JsonSettings);
+                var configuration = new Configuration
+                {
+                    Container = new List<RepositoryContainer> { new RepositoryContainer() },
+                    Protocol = Protocol.HTTPS,
+                    Provider = Provider.GitHub
+                };
+
+                string data = JsonConvert.SerializeObject(configuration, JsonSettings);
                 File.WriteAllText(configurationPath, data);
             }
         }

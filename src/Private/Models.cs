@@ -13,9 +13,15 @@ namespace RepoManager
         System
     }
 
-    internal enum Protocol
+    public enum Provider
     {
-        HTTP,
+        GitHub,
+        GitLab,
+        BitBucket
+    }
+
+    public enum Protocol
+    {
         HTTPS,
         SSH
     }
@@ -51,5 +57,8 @@ namespace RepoManager
 
         [JsonConverter(typeof(StringEnumConverter))]
         public Protocol Protocol { get; set; }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public Provider Provider { get; set; }
     }
 }
