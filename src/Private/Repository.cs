@@ -9,13 +9,13 @@ namespace RepoManager
     {
         public string Name { get; set; }
 
+        public string Container { get; set; }
+
         public string Path { get; set; }
 
         public string GitPath { get; set; }
 
-        private string Container { get; set; }
-
-        // TODO: Size
+        public int Size { get; set; }
 
         public string Remote { get; set; }
 
@@ -23,9 +23,11 @@ namespace RepoManager
 
         public string ActiveBranch { get; set; }
 
-        // TODO: (Programming) Language(s)
+        public List<string> Language { get; set; }
 
-        // TODO: License Name
+        public string License { get; set; }
+
+        public int FileCount { get; set; }
 
         public int TotalFileCount { get; set; }
 
@@ -43,9 +45,12 @@ namespace RepoManager
 
         public DateTime LastCommitDate { get; set; }
 
-        public Repository()
+        public Repository(string name, string container)
         {
-            // TODO
+            Name = name;
+            Container = container;
+            Path = System.IO.Path.Combine(container, name);
+            GitPath = System.IO.Path.Combine(container, name, ".git");
         }
     }
 }
