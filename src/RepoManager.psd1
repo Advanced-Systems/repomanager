@@ -41,7 +41,7 @@
         'clone',    # Import-Repository
         'track',    # Get-Branch
         'grepo',    # Get-Repository
-        'rrepo'     # Remove-Repository
+        'rmrepo'    # Remove-Repository
     )
 
     # VariablesToExport = '*'

@@ -6,7 +6,7 @@ using System.Management.Automation;
 
 namespace RepoManager
 {
-    [Alias("rrepo")]
+    [Alias("rmrepo")]
     [Cmdlet(VerbsCommon.Remove, "Repository", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.High)]
     public class RemoveRepositoryCommand : PSCmdlet
     {
