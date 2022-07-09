@@ -6,12 +6,43 @@ using Newtonsoft.Json.Converters;
 
 namespace RepoManager
 {
+    #region type definitions for the Git and Repository classes
+
     internal enum Scope
     {
         Local,
         Global,
         System
     }
+
+    internal struct Remote
+    {
+        public string Push { get; set; }
+
+        public string Pull { get; set; }
+    }
+
+    internal struct Author
+    {
+        public string Name { get; set; }
+
+        public string Email { get; set; }
+    }
+
+    internal struct Commit
+    {
+        public Author Author { get; set; }
+
+        public string Message { get; set; }
+
+        public DateTime DateTime { get; set; }
+
+        public string Hash { get; set; }
+    }
+
+    #endregion
+
+    #region serializable types for the configuration file
 
     public enum Provider
     {
@@ -61,4 +92,6 @@ namespace RepoManager
         [JsonConverter(typeof(StringEnumConverter))]
         public Provider Provider { get; set; }
     }
+
+    #endregion
 }
