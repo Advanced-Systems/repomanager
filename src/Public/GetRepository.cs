@@ -7,18 +7,19 @@ using System.Management.Automation;
 namespace RepoManager
 {
     [Alias("grepo")]
+    [OutputType(typeof(Repository), typeof(List<Repository>))]
     [Cmdlet(VerbsCommon.Get, "Repository")]
     public class GetRepositoryCommand : PSCmdlet
     {
+        [Parameter(ParameterSetName = "All")]
+        public SwitchParameter All { get; set; }
+
         [ValidateNotNullOrEmpty()]
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "Name", HelpMessage = "Repository name")]
         public List<string> Name { get; set; }
 
         [Parameter(ParameterSetName = "Name", HelpMessage = "Path to repository container")]
         public string Path { get; set; }
-
-        [Parameter(ParameterSetName = "All")]
-        public SwitchParameter All { get; set; }
 
         private Configuration Configuration { get; set; }
 
@@ -39,14 +40,19 @@ namespace RepoManager
         {
             if (All.IsPresent)
             {
+                Name = System.IO.Directory.GetDirectories(Path).ToList();
+                Name = Name.Select(p => System.IO.Path.GetFileName(p)).ToList();
+
                 foreach (var name in Name)
                 {
-                    WriteObject($"This is all!, {name}");
+                    var repository = new Repository(name, container: Path);
+                    WriteObject(repository);
                 }
             }
             else
             {
-                WriteObject($"Name is {string.Join(Environment.NewLine, Name)}");
+                var repository = new Repository(Name.First(), container: Path);
+                WriteObject(repository);
             }
         }
 
