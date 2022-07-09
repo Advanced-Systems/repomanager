@@ -1,28 +1,27 @@
 using System;
 using System.IO;
-using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Net.Http;
 
-using Octokit;
+using Newtonsoft.Json.Linq;
 
 namespace RepoManager
 {
     internal static class Utils
     {
-        public static string RemoveLineBreaks(this string @string)
-        {
-            return @string.Replace("\r\n", string.Empty).Replace("\r", string.Empty).Replace("\n", string.Empty);
-        }
+        public static string RemoveLineBreaks(this string @string) => @string.Replace("\r\n", string.Empty).Replace("\r", string.Empty).Replace("\n", string.Empty);
 
-        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> enumeration, Action<T> action)
+        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> @this, Action<T> action)
         {
-            foreach (T item in enumeration)
+            _ = action ?? throw new ArgumentNullException(nameof(action));
+
+            foreach (T item in @this)
             {
                 action(item);
             }
 
-            return enumeration;
+            return @this;
         }
 
         public static void DeleteDirectoryRecursively(string path)
@@ -43,11 +42,30 @@ namespace RepoManager
             Directory.Delete(path);
         }
 
-        public static async Task<IEnumerable<string>> GetAllRepositoryNames(string username)
+        public static List<string> GetAllRepositoryNames(string username, Provider provider = Provider.GitHub)
         {
-            var github = new GitHubClient(new Octokit.ProductHeaderValue(ConfigurationManager.ModuleName));
-            var repositories = await github.Repository.GetAllForUser(username);
-            return repositories.Select(repo => repo.Name);
+            var repositoryNames = new List<string>();
+            string response = string.Empty;
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.UserAgent.TryParseAdd(ConfigurationManager.ModuleName);
+
+            switch (provider)
+            {
+                case Provider.GitLab:
+                    throw new NotImplementedException();
+                case Provider.BitBucket:
+                    response = Task.Run(() => client.GetStringAsync($"https://bitbucket.org/api/2.0/repositories/{username}")).Result;
+                    var bitbucket = JObject.Parse(response)["values"];
+                    bitbucket.ForEach(repo => repositoryNames.Add(repo["name"].ToString()));
+                    break;
+                default:
+                    response = Task.Run(() => client.GetStringAsync($"https://api.github.com/users/{username}/repos")).Result;
+                    var github = JArray.Parse(response);
+                    github.ForEach(repo => repositoryNames.Add(repo["name"].ToString()));
+                    break;
+            }
+
+            return repositoryNames;
         }
     }
 }
