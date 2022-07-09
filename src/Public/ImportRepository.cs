@@ -26,19 +26,19 @@ namespace RepoManager
         public SwitchParameter All { get; set; }
 
         [Parameter(ParameterSetName = "All", HelpMessage = "Client user name")]
-        [Parameter(ParameterSetName = "User", HelpMessage = "Client user name")]
+        [Parameter(ParameterSetName = "Name", HelpMessage = "Client user name")]
         public string User { get; set; }
 
         [ValidateNotNullOrEmpty()]
-        [Parameter(Mandatory = true, ParameterSetName = "User", HelpMessage = "Repository name")]
+        [Parameter(Mandatory = true, ParameterSetName = "Name", HelpMessage = "Repository name")]
         public string Name { get; set; }
 
         [Parameter(ParameterSetName = "All", HelpMessage = "Clone protocol")]
-        [Parameter(ParameterSetName = "User", HelpMessage = "Clone protocol")]
+        [Parameter(ParameterSetName = "Name", HelpMessage = "Clone protocol")]
         public Protocol Protocol { get; set; }
 
         [Parameter(ParameterSetName = "All", HelpMessage = "Hosting service")]
-        [Parameter(ParameterSetName = "User", HelpMessage = "Hosting service")]
+        [Parameter(ParameterSetName = "Name", HelpMessage = "Hosting service")]
         public Provider Provider { get; set; }
 
         private string TopLevelDomain { get; set; }
@@ -59,7 +59,7 @@ namespace RepoManager
                     .Select(repo => repo.Path)
                     .First();
 
-            User = !MyInvocation.BoundParameters.ContainsKey("Uri") && !MyInvocation.BoundParameters.ContainsKey("User")
+            User = !MyInvocation.BoundParameters.ContainsKey("Uri") && !MyInvocation.BoundParameters.ContainsKey("Name")
                  ? Git.GetConfig("user.name", Scope.Global)
                  : User;
 
@@ -83,7 +83,7 @@ namespace RepoManager
             if (All.IsPresent)
             {
                 // TODO: return repository objects
-                var repoNames = Utils.GetAllRepositoryNames(User, this.Provider);
+                var repoNames = Utils.GetAllRepositoryNames(User, Provider);
                 int count = repoNames.Count();
                 int activityId = 0;
 
@@ -120,7 +120,7 @@ namespace RepoManager
                     activityId++;
                 }
             }
-            else if (!string.IsNullOrEmpty(User))
+            else if (MyInvocation.BoundParameters.ContainsKey("Name"))
             {
                 // TODO: return repository object
                 string uri = $"{Hostname}{User}/{Name}.git";
