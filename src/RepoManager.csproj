@@ -14,4 +14,8 @@
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.1" />
   </ItemGroup>
 
+  <ItemGroup>
+      <Content Include="RepoManager.psd1" CopyToOutputDirectory="Always" />
+  </ItemGroup>
+
 </Project>
