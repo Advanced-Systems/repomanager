@@ -14,7 +14,7 @@
     Author = 'Stefan Greve'
     CompanyName = 'Advanced Systems'
     Copyright = '(c) 2022 Advanced Systems. All rights reserved.'
-    Description = 'PowerShell module to manager your Git respositories from the terminal'
+    Description = 'PowerShell Module to manager your Git respositories from the terminal.'
     # PowerShellVersion = ''
     # PowerShellHostName = ''
     # PowerShellHostVersion = ''
