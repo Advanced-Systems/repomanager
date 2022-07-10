@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.IO;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -15,7 +15,7 @@ namespace RepoManager
         public SwitchParameter All { get; set; }
 
         [ValidateNotNullOrEmpty()]
-        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "Name", HelpMessage = "Repository name")]
+        [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true, ParameterSetName = "Name", HelpMessage = "Repository name")]
         public List<string> Name { get; set; }
 
         [Parameter(ParameterSetName = "Name", HelpMessage = "Path to repository container")]
@@ -40,8 +40,7 @@ namespace RepoManager
         {
             if (All.IsPresent)
             {
-                Name = System.IO.Directory.GetDirectories(Path).ToList();
-                Name = Name.Select(p => System.IO.Path.GetFileName(p)).ToList();
+                Name = Directory.GetDirectories(Path).Select(System.IO.Path.GetFileName).ToList();
 
                 foreach (var name in Name)
                 {
@@ -51,6 +50,7 @@ namespace RepoManager
             }
             else
             {
+                // TODO: error handling, check if repository actually exists, else throw an exception
                 var repository = new Repository(Name.First(), container: Path);
                 WriteObject(repository);
             }
