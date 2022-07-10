@@ -85,12 +85,25 @@ namespace RepoManager
 
         public static int GetCommitCount(string workingDirectory, string branch) => GetCommitCountAsync(workingDirectory, branch).GetAwaiter().GetResult();
 
-        public static async Task<List<Author>> GetAuthorsAsync(string workingDirectory)
+        public static async Task<IEnumerable<Author>> GetAuthorsAsync(string workingDirectory)
         {
-            throw new NotImplementedException();
+            var authorTask = await Cli.Wrap("git")
+                .WithWorkingDirectory(workingDirectory)
+                .WithArguments(new string[] { "log", "--format='%an,%ae'" })
+                .ExecuteBufferedAsync();
+
+            var standardOutput = authorTask.StandardOutput.Split(Environment.NewLine.ToArray()).Distinct();
+
+            return standardOutput
+                .Where(line => !string.IsNullOrEmpty(line))
+                .Select(line =>
+                {
+                    string[] log = line.Replace("'", "").Split(',');
+                    return new Author { Name = log[0], Email = log[1] };
+                });
         }
 
-        public static List<Author> GetAuthors(string workingDirectory) => GetAuthorsAsync(workingDirectory).GetAwaiter().GetResult();
+        public static IEnumerable<Author> GetAuthors(string workingDirectory) => GetAuthorsAsync(workingDirectory).GetAwaiter().GetResult();
 
         public static async Task FetchAsync(string workingDirectory, bool all = false)
         {

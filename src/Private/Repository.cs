@@ -31,7 +31,7 @@ namespace RepoManager
 
         public int TotalFileCount { get; set; }
 
-        public List<string> Contributors { get; set; }
+        public List<Author> Authors { get; set; }
 
         public int CommitCount { get; set; }
 
@@ -56,6 +56,7 @@ namespace RepoManager
             ActiveBranch = Git.GetActiveBranch(GitPath);
             // FileCount
             TotalFileCount = Files.Count();
+            Authors = Git.GetAuthors(GitPath).ToList();
             CommitCount = Git.GetCommitCount(GitPath, DefaultBranch);
             NewCommitCount = Git.GetCommitCount(GitPath, ActiveBranch) - CommitCount;
             LastCommit = Git.GetLastCommit(GitPath);
