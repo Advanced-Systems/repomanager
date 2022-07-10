@@ -82,7 +82,6 @@ namespace RepoManager
         {
             if (All.IsPresent)
             {
-                // TODO: return repository objects
                 var repoNames = Utils.GetAllRepositoryNames(User, Provider);
                 int count = repoNames.Count();
                 int activityId = 0;
@@ -122,7 +121,6 @@ namespace RepoManager
             }
             else if (MyInvocation.BoundParameters.ContainsKey("Name"))
             {
-                // TODO: return repository object
                 string uri = $"{Hostname}{User}/{Name}.git";
                 string repoPath = System.IO.Path.Combine(Path, Name);
 
@@ -139,7 +137,6 @@ namespace RepoManager
             }
             else
             {
-                // TODO: return repository objects
                 foreach (string u in Uri)
                 {
                     string repoName = u.Split('/').Last().Split('.').First();
