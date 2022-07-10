@@ -15,21 +15,21 @@ namespace RepoManager
         System
     }
 
-    internal struct Remote
+    public struct Remote
     {
         public string Push { get; set; }
 
         public string Pull { get; set; }
     }
 
-    internal struct Author
+    public struct Author
     {
         public string Name { get; set; }
 
         public string Email { get; set; }
     }
 
-    internal struct Commit
+    public struct Commit
     {
         public Author Author { get; set; }
 
