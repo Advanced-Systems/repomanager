@@ -21,19 +21,36 @@ namespace RepoManager
 
         public static string GetConfig(string key, Scope scope) => GetConfigAsync(key, scope).GetAwaiter().GetResult();
 
-        public static async Task<string> GetDefaultBranchAsync()
+        public static async Task<string> GetDefaultBranchAsync(string workingDirectory)
         {
-            throw new NotImplementedException();
+            var branchTask = await Cli.Wrap("git")
+                .WithWorkingDirectory(workingDirectory)
+                .WithArguments(new string[] { "remote", "show", "origin" })
+                .ExecuteBufferedAsync();
+
+            var standardOutput = branchTask.StandardOutput.Split(Environment.NewLine.ToArray()).ToList();
+
+            return standardOutput
+                .Where(line => line.Contains("HEAD branch"))
+                .First()
+                .Split(":")
+                .Last()
+                .Trim();
         }
 
-        public static string GetDefaultBranch() => GetDefaultBranchAsync().GetAwaiter().GetResult();
+        public static string GetDefaultBranch(string workingDirectory) => GetDefaultBranchAsync(workingDirectory).GetAwaiter().GetResult();
 
-        public static async Task<string> GetActiveBranchAsync()
+        public static async Task<string> GetActiveBranchAsync(string workingDirectory)
         {
-            throw new NotImplementedException();
+            var branchTask = await Cli.Wrap("git")
+                .WithWorkingDirectory(workingDirectory)
+                .WithArguments(new string[] { "rev-parse", "--abbrev-ref", "HEAD" })
+                .ExecuteBufferedAsync();
+
+            return branchTask.StandardOutput;
         }
 
-        public static string GetActiveBranch() => GetActiveBranchAsync().GetAwaiter().GetResult();
+        public static string GetActiveBranch(string workingDirectory) => GetActiveBranchAsync(workingDirectory).GetAwaiter().GetResult();
 
         public static async Task<Commit> GetLastCommitAsync(string workingDirectory)
         {

@@ -52,6 +52,8 @@ namespace RepoManager
             DirectoryInfo = new DirectoryInfo(Path);
             Files = DirectoryInfo.EnumerateFiles("*", SearchOption.AllDirectories);
             Size = Files.Sum(file => file.Length);
+            DefaultBranch = Git.GetDefaultBranch(GitPath);
+            ActiveBranch = Git.GetActiveBranch(GitPath);
             // FileCount
             TotalFileCount = Files.Count();
             LastCommit = Git.GetLastCommit(GitPath);
