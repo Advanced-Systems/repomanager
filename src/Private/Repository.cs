@@ -15,7 +15,7 @@ namespace RepoManager
 
         public string GitPath { get; set; }
 
-        public int Size { get; set; }
+        public long Size { get; set; }
 
         public string Remote { get; set; }
 
@@ -39,7 +39,9 @@ namespace RepoManager
 
         public Commit LastCommit { get; set; }
 
-        private IEnumerable<string> Files { get; set; }
+        private DirectoryInfo DirectoryInfo { get; set; }
+
+        private IEnumerable<FileInfo> Files { get; set; }
 
         public Repository(string name, string container)
         {
@@ -47,7 +49,9 @@ namespace RepoManager
             Container = container;
             Path = System.IO.Path.Combine(container, name);
             GitPath = System.IO.Path.Combine(container, name, ".git");
-            Files = Directory.EnumerateFiles(Path, "*.*", SearchOption.AllDirectories);
+            DirectoryInfo = new DirectoryInfo(Path);
+            Files = DirectoryInfo.EnumerateFiles("*", SearchOption.AllDirectories);
+            Size = Files.Sum(file => file.Length);
             // FileCount
             TotalFileCount = Files.Count();
             LastCommit = Git.GetLastCommit(GitPath);
