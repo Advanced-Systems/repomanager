@@ -37,13 +37,9 @@ namespace RepoManager
 
         public int NewCommitCount { get; set; }
 
-        public string LastCommitMessage { get; set; }
+        public Commit LastCommit { get; set; }
 
-        public string LastCommitHash { get; set; }
-
-        public string LastCommitAuthor { get; set; }
-
-        public DateTime LastCommitDate { get; set; }
+        private IEnumerable<string> Files { get; set; }
 
         public Repository(string name, string container)
         {
@@ -51,6 +47,10 @@ namespace RepoManager
             Container = container;
             Path = System.IO.Path.Combine(container, name);
             GitPath = System.IO.Path.Combine(container, name, ".git");
+            Files = Directory.EnumerateFiles(Path, "*.*", SearchOption.AllDirectories);
+            // FileCount
+            TotalFileCount = Files.Count();
+            LastCommit = Git.GetLastCommit(GitPath);
         }
     }
 }

@@ -21,6 +21,40 @@ namespace RepoManager
 
         public static string GetConfig(string key, Scope scope) => GetConfigAsync(key, scope).GetAwaiter().GetResult();
 
+        public static async Task<string> GetDefaultBranchAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public static string GetDefaultBranch() => GetDefaultBranchAsync().GetAwaiter().GetResult();
+
+        public static async Task<string> GetActiveBranchAsync()
+        {
+            throw new NotImplementedException();
+        }
+
+        public static string GetActiveBranch() => GetActiveBranchAsync().GetAwaiter().GetResult();
+
+        public static async Task<Commit> GetLastCommitAsync(string workingDirectory)
+        {
+            var commitTask = await Cli.Wrap("git")
+                .WithWorkingDirectory(workingDirectory)
+                .WithArguments(new string[] { "log", "-n", "1", "--format='%s%n%H%n%an%n%ae%n%at'" })
+                .ExecuteBufferedAsync();
+
+            var standardOutput = commitTask.StandardOutput.Replace("'", "").Split(Environment.NewLine.ToArray()).ToList();
+
+            return new Commit
+            {
+                Message = standardOutput[0],
+                Hash = standardOutput[1],
+                Author = new Author { Name = standardOutput[2], Email = standardOutput[3] },
+                DateTime = Utils.ConvertToDateTime(unixTimeStamp: Convert.ToDouble(standardOutput[4]))
+            };
+        }
+
+        public static Commit GetLastCommit(string workingDirectory) => GetLastCommitAsync(workingDirectory).GetAwaiter().GetResult();
+
         public static async Task FetchAsync(string workingDirectory, bool all = false)
         {
             var fetchTask = await Cli.Wrap("git")
