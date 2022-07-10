@@ -26,20 +26,9 @@ namespace RepoManager
 
         public static void DeleteDirectoryRecursively(string path)
         {
-            foreach (string file in Directory.EnumerateFiles(path, "*.*", SearchOption.AllDirectories))
-            {
-                File.SetAttributes(file, FileAttributes.Normal);
-                File.Delete(file);
-            }
-
-            foreach (string directory in Directory.EnumerateDirectories(path))
-            {
-                var directoryInfo = new DirectoryInfo(directory);
-                directoryInfo.Attributes |= FileAttributes.Normal;
-                Directory.Delete(directory, recursive: true);
-            }
-
-            Directory.Delete(path);
+            var directory = new DirectoryInfo(path) { Attributes = FileAttributes.Normal };
+            directory.GetFileSystemInfos("*", SearchOption.AllDirectories).ForEach(file => file.Attributes = FileAttributes.Normal);
+            Directory.Delete(path, recursive: true);
         }
 
         public static DateTime ConvertToDateTime(double unixTimeStamp) => new DateTime(1970, 1, 1, 0, 0, 0).AddSeconds(unixTimeStamp);
