@@ -56,6 +56,8 @@ namespace RepoManager
             ActiveBranch = Git.GetActiveBranch(GitPath);
             // FileCount
             TotalFileCount = Files.Count();
+            CommitCount = Git.GetCommitCount(GitPath, DefaultBranch);
+            NewCommitCount = Git.GetCommitCount(GitPath, ActiveBranch) - CommitCount;
             LastCommit = Git.GetLastCommit(GitPath);
         }
     }

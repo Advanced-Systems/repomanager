@@ -35,7 +35,8 @@ namespace RepoManager
                 .First()
                 .Split(":")
                 .Last()
-                .Trim();
+                .Trim()
+                .RemoveLineBreaks();
         }
 
         public static string GetDefaultBranch(string workingDirectory) => GetDefaultBranchAsync(workingDirectory).GetAwaiter().GetResult();
@@ -44,10 +45,10 @@ namespace RepoManager
         {
             var branchTask = await Cli.Wrap("git")
                 .WithWorkingDirectory(workingDirectory)
-                .WithArguments(new string[] { "rev-parse", "--abbrev-ref", "HEAD" })
+                .WithArguments(new string[] { "branch", "--show-current" })
                 .ExecuteBufferedAsync();
 
-            return branchTask.StandardOutput;
+            return branchTask.StandardOutput.RemoveLineBreaks();
         }
 
         public static string GetActiveBranch(string workingDirectory) => GetActiveBranchAsync(workingDirectory).GetAwaiter().GetResult();
@@ -72,6 +73,25 @@ namespace RepoManager
 
         public static Commit GetLastCommit(string workingDirectory) => GetLastCommitAsync(workingDirectory).GetAwaiter().GetResult();
 
+        public static async Task<int> GetCommitCountAsync(string workingDirectory, string branch)
+        {
+            var countTask = await Cli.Wrap("git")
+                .WithWorkingDirectory(workingDirectory)
+                .WithArguments(new string[] { "rev-list", "--count", branch })
+                .ExecuteBufferedAsync();
+
+            return Convert.ToInt32(countTask.StandardOutput);
+        }
+
+        public static int GetCommitCount(string workingDirectory, string branch) => GetCommitCountAsync(workingDirectory, branch).GetAwaiter().GetResult();
+
+        public static async Task<List<Author>> GetAuthorsAsync(string workingDirectory)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static List<Author> GetAuthors(string workingDirectory) => GetAuthorsAsync(workingDirectory).GetAwaiter().GetResult();
+
         public static async Task FetchAsync(string workingDirectory, bool all = false)
         {
             var fetchTask = await Cli.Wrap("git")
@@ -80,10 +100,7 @@ namespace RepoManager
                 .ExecuteAsync();
         }
 
-        public static void Fetch(string workingDirectory, bool all = false)
-        {
-            FetchAsync(workingDirectory, all).GetAwaiter().GetResult();
-        }
+        public static void Fetch(string workingDirectory, bool all = false) => FetchAsync(workingDirectory, all).GetAwaiter().GetResult();
 
         public static async Task<IEnumerable<string>> GetLocalBranchesAsync(string workingDirectory)
         {
@@ -96,10 +113,7 @@ namespace RepoManager
             return standardOutput.Where(b => !string.IsNullOrEmpty(b));
         }
 
-        public static IEnumerable<string> GetLocalBranches(string workingDirectory)
-        {
-            return GetLocalBranchesAsync(workingDirectory).GetAwaiter().GetResult();
-        }
+        public static IEnumerable<string> GetLocalBranches(string workingDirectory) => GetLocalBranchesAsync(workingDirectory).GetAwaiter().GetResult();
 
         public static async Task<IEnumerable<string>> GetRemoteBranchesAsync(string workingDirectory, bool fetchAll = true)
         {
@@ -123,10 +137,7 @@ namespace RepoManager
             return standardOutput.Where(branch => !string.IsNullOrEmpty(branch) && !branchFilter.Contains(branch));
         }
 
-        public static IEnumerable<string> GetRemoteBranches(string workingDirectory, bool fetchAll = true)
-        {
-            return GetRemoteBranchesAsync(workingDirectory, fetchAll).GetAwaiter().GetResult();
-        }
+        public static IEnumerable<string> GetRemoteBranches(string workingDirectory, bool fetchAll = true) => GetRemoteBranchesAsync(workingDirectory, fetchAll).GetAwaiter().GetResult();
 
         public static async Task TrackBranchAsync(string workingDirectory, string branch)
         {
@@ -136,10 +147,7 @@ namespace RepoManager
                 .ExecuteAsync();
         }
 
-        public static void TrackBranch(string workingDirectory, string branch)
-        {
-            TrackBranchAsync(workingDirectory, branch).GetAwaiter().GetResult();
-        }
+        public static void TrackBranch(string workingDirectory, string branch) => TrackBranchAsync(workingDirectory, branch).GetAwaiter().GetResult();
 
         public static void TrackAllBranches(string workingDirectory, Action<string> verboseAction = null, Action<string> warningAction = null)
         {
@@ -174,9 +182,6 @@ namespace RepoManager
                 .ExecuteAsync();
         }
 
-        public static void CloneRepository(string uri, string path)
-        {
-            CloneRepositoryAsync(uri, path).GetAwaiter().GetResult();
-        }
+        public static void CloneRepository(string uri, string path) => CloneRepositoryAsync(uri, path).GetAwaiter().GetResult();
     }
 }
