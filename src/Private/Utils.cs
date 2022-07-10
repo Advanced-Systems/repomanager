@@ -42,6 +42,8 @@ namespace RepoManager
             Directory.Delete(path);
         }
 
+        public static DateTime ConvertToDateTime(double unixTimeStamp) => new DateTime(1970, 1, 1, 0, 0, 0).AddSeconds(unixTimeStamp);
+
         public static List<string> GetAllRepositoryNames(string username, Provider provider = Provider.GitHub)
         {
             var repositoryNames = new List<string>();
