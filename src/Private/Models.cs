@@ -58,7 +58,7 @@ namespace RepoManager
     }
 
     [Serializable]
-    internal class RepositoryContainer
+    internal sealed class RepositoryContainer
     {
         public string Name { get; set; }
 
@@ -82,7 +82,7 @@ namespace RepoManager
     }
 
     [Serializable]
-    internal class Configuration
+    internal sealed class Configuration
     {
         public List<RepositoryContainer> Container { get; set; }
 

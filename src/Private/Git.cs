@@ -9,7 +9,7 @@ using CliWrap.Buffered;
 
 namespace RepoManager
 {
-    internal class Git
+    internal sealed class Git
     {
         public static async Task<string> GetConfigAsync(string key, Scope scope)
         {

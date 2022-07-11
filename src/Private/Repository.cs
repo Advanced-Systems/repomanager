@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace RepoManager
 {
-    internal class Repository
+    internal sealed class Repository
     {
         public string Name { get; set; }
 

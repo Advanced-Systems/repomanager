@@ -8,7 +8,7 @@ using System.Management.Automation.Language;
 
 namespace RepoManager
 {
-    public class PathArgumentCompleter : IArgumentCompleter
+    internal sealed class PathArgumentCompleter : IArgumentCompleter
     {
         IEnumerable<CompletionResult> IArgumentCompleter.CompleteArgument(string commandName, string parameterName, string wordToComplete, CommandAst commandAst, IDictionary fakeBoundParameters)
         {
@@ -22,7 +22,7 @@ namespace RepoManager
         }
     }
 
-    public class NameArgumentCompleter : IArgumentCompleter
+    internal sealed class NameArgumentCompleter : IArgumentCompleter
     {
         IEnumerable<CompletionResult> IArgumentCompleter.CompleteArgument(string commandName, string parameterName, string wordToComplete, CommandAst commandAst, IDictionary fakeBoundParameters)
         {

@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 
 namespace RepoManager
 {
-    internal class ConfigurationManager
+    internal sealed class ConfigurationManager
     {
         public const string ModuleName = "RepoManager";
 
