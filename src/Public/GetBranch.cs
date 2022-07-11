@@ -12,6 +12,7 @@ namespace RepoManager
     public class GetBranchCommand : PSCmdlet
     {
         [ValidateNotNullOrEmpty()]
+        [ArgumentCompleter(typeof(NameArgumentCompleter))]
         [Parameter(Position = 0, Mandatory = true, ParameterSetName = "All", HelpMessage = "Repository name")]
         [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Name", HelpMessage = "Repository name")]
         public string Name { get; set; }
@@ -20,6 +21,7 @@ namespace RepoManager
         [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Name", HelpMessage = "Name of remote branch")]
         public string Branch { get; set; }
 
+        [ArgumentCompleter(typeof(PathArgumentCompleter))]
         [Parameter(Position = 2, HelpMessage = "Path to repository container")]
         public string Path { get; set; }
 

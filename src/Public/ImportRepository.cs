@@ -15,6 +15,7 @@ namespace RepoManager
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true, ParameterSetName = "Uri", HelpMessage = "Repository URI")]
         public List<string> Uri { get; set; }
 
+        [ArgumentCompleter(typeof(PathArgumentCompleter))]
         [Parameter(HelpMessage = "Path to repository container")]
         public string Path { get; set; }
 

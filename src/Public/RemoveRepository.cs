@@ -11,9 +11,11 @@ namespace RepoManager
     public class RemoveRepositoryCommand : PSCmdlet
     {
         [ValidateNotNullOrEmpty()]
+        [ArgumentCompleter(typeof(NameArgumentCompleter))]
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true, HelpMessage = "Repository to remove")]
         public List<string> Name { get; set; }
 
+        [ArgumentCompleter(typeof(PathArgumentCompleter))]
         [Parameter(Position = 1, HelpMessage = "Path to repository container")]
         public string Path { get; set; }
 

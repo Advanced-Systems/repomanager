@@ -15,9 +15,11 @@ namespace RepoManager
         public SwitchParameter All { get; set; }
 
         [ValidateNotNullOrEmpty()]
+        [ArgumentCompleter(typeof(NameArgumentCompleter))]
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true, ParameterSetName = "Name", HelpMessage = "Repository name")]
         public List<string> Name { get; set; }
 
+        [ArgumentCompleter(typeof(PathArgumentCompleter))]
         [Parameter(ParameterSetName = "Name", HelpMessage = "Path to repository container")]
         public string Path { get; set; }
 
