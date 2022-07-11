@@ -28,7 +28,7 @@ namespace RepoManager
                 .WithArguments(new string[] { "remote", "show", "origin" })
                 .ExecuteBufferedAsync();
 
-            var standardOutput = branchTask.StandardOutput.Split(Environment.NewLine.ToArray()).ToList();
+            var standardOutput = branchTask.StandardOutput.Split(Environment.NewLine.ToArray());
 
             return standardOutput
                 .Where(line => line.Contains("HEAD branch"))
@@ -122,7 +122,7 @@ namespace RepoManager
                 .WithArguments(new string[] { "branch", "--format=%(refname:short)" })
                 .ExecuteBufferedAsync();
 
-            var standardOutput = branchTask.StandardOutput.Split(Environment.NewLine.ToArray()).ToList();
+            var standardOutput = branchTask.StandardOutput.Split(Environment.NewLine.ToArray());
             return standardOutput.Where(b => !string.IsNullOrEmpty(b));
         }
 
@@ -146,7 +146,7 @@ namespace RepoManager
                 "main"
             };
 
-            var standardOutput = branchTask.StandardOutput.Split(Environment.NewLine.ToCharArray()).ToList();
+            var standardOutput = branchTask.StandardOutput.Split(Environment.NewLine.ToCharArray());
             return standardOutput.Where(branch => !string.IsNullOrEmpty(branch) && !branchFilter.Contains(branch));
         }
 
