@@ -40,9 +40,7 @@ namespace RepoManager
         {
             if (All.IsPresent)
             {
-                Name = Directory.GetDirectories(Path).Select(System.IO.Path.GetFileName).ToList();
-
-                foreach (var name in Name)
+                foreach (var name in Directory.GetDirectories(Path).Select(System.IO.Path.GetFileName))
                 {
                     var repository = new Repository(name, container: Path);
                     WriteObject(repository);
@@ -50,15 +48,26 @@ namespace RepoManager
             }
             else
             {
-                // TODO: error handling, check if repository actually exists, else throw an exception
-                var repository = new Repository(Name.First(), container: Path);
-                WriteObject(repository);
+                foreach (var name in Name)
+                {
+                    try
+                    {
+                        var repository = new Repository(name, container: Path);
+                        WriteObject(repository);
+                    }
+                    catch (DirectoryNotFoundException exception)
+                    {
+                        var repoPath = System.IO.Path.Combine(Path, name);
+                        WriteError(new ErrorRecord(exception, "Directory not found", ErrorCategory.ObjectNotFound, repoPath));
+                        continue;
+                    }
+                }
             }
         }
 
         protected override void EndProcessing()
         {
-            // TODO
+
         }
     }
 }
