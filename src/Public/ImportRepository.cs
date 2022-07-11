@@ -59,7 +59,7 @@ namespace RepoManager
                     .Select(repo => repo.Path)
                     .First();
 
-            User = !MyInvocation.BoundParameters.ContainsKey("Uri") && !MyInvocation.BoundParameters.ContainsKey("Name")
+            User = MyInvocation.BoundParameters.ContainsKey("Name") && !MyInvocation.BoundParameters.ContainsKey("User")
                  ? Git.GetConfig("user.name", Scope.Global)
                  : User;
 
@@ -100,20 +100,12 @@ namespace RepoManager
 
                     if (ShouldProcess(uri, $"Clone repository {repoName} to '{Path}'"))
                     {
-                        if (!Directory.Exists(repoPath) || !Directory.EnumerateFileSystemEntries(repoPath).Any())
-                        {
+                        Git.CloneRepository(uri, repoPath, WriteVerbose, WriteWarning);
 
-                            Git.CloneRepository(uri, repoPath);
-                        }
-                        else
+                        if (TrackAllBranches.IsPresent)
                         {
-                            WriteWarning($"Destination path '{repoPath}' already exists and is not an empty directory");
+                            Git.TrackAllBranches(System.IO.Path.Combine(repoPath, ".git"), WriteVerbose, WriteWarning);
                         }
-                    }
-
-                    if (TrackAllBranches.IsPresent)
-                    {
-                        Git.TrackAllBranches(System.IO.Path.Combine(repoPath, ".git"), WriteVerbose, WriteWarning);
                     }
 
                     activityId++;
@@ -126,8 +118,7 @@ namespace RepoManager
 
                 if (ShouldProcess(uri, $"Clone repository {Name} to '{Path}'"))
                 {
-                    WriteVerbose($"Cloning '{Name}' into '{repoPath}' . . .");
-                    Git.CloneRepository(uri, repoPath);
+                    Git.CloneRepository(uri, repoPath, WriteVerbose, WriteWarning);
 
                     if (TrackAllBranches.IsPresent)
                     {
@@ -145,19 +136,11 @@ namespace RepoManager
 
                     if (ShouldProcess(u, $"Clone repository {repoName} to '{Path}'"))
                     {
-                        if (!Directory.Exists(repoPath) || !Directory.EnumerateFileSystemEntries(repoPath).Any())
-                        {
-                            WriteVerbose($"Cloning '{u}' into '{repoPath}' . . .");
-                            Git.CloneRepository(u, repoPath);
+                        Git.CloneRepository(u, repoPath, WriteVerbose, WriteWarning);
 
-                            if (TrackAllBranches.IsPresent && Directory.Exists(gitPath))
-                            {
-                                Git.TrackAllBranches(gitPath, WriteVerbose, WriteWarning);
-                            }
-                        }
-                        else
+                        if (TrackAllBranches.IsPresent && Directory.Exists(gitPath))
                         {
-                            WriteWarning($"Destination path '{repoPath}' already exists and is not an empty directory");
+                            Git.TrackAllBranches(gitPath, WriteVerbose, WriteWarning);
                         }
                     }
                 }

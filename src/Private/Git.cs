@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -150,7 +151,8 @@ namespace RepoManager
             return standardOutput.Where(branch => !string.IsNullOrEmpty(branch) && !branchFilter.Contains(branch));
         }
 
-        public static IEnumerable<string> GetRemoteBranches(string workingDirectory, bool fetchAll = true) => GetRemoteBranchesAsync(workingDirectory, fetchAll).GetAwaiter().GetResult();
+        public static IEnumerable<string> GetRemoteBranches(string workingDirectory, bool fetchAll = true) =>
+            GetRemoteBranchesAsync(workingDirectory, fetchAll).GetAwaiter().GetResult();
 
         public static async Task TrackBranchAsync(string workingDirectory, string branch)
         {
@@ -188,13 +190,29 @@ namespace RepoManager
             }
         }
 
-        public static async Task CloneRepositoryAsync(string uri, string path)
+        public static async Task CloneRepositoryAsync(string uri, string path, Action<string> verboseAction = null, Action<string> warningAction = null)
         {
-            var cloneTask = await Cli.Wrap("git")
-                .WithArguments(new string[] { "clone", uri, path, "--quiet" })
-                .ExecuteAsync();
+            if (!Directory.Exists(path) || !Directory.EnumerateFileSystemEntries(path).Any())
+            {
+                if (verboseAction != null)
+                {
+                    verboseAction($"Cloning '{uri}' into '{path}' . . .");
+                }
+
+                var cloneTask = await Cli.Wrap("git")
+                    .WithArguments(new string[] { "clone", uri, path, "--quiet" })
+                    .ExecuteAsync();
+            }
+            else
+            {
+                if (warningAction != null)
+                {
+                    warningAction($"Destination path '{path}' already exists and is not an empty directory");
+                }
+            }
         }
 
-        public static void CloneRepository(string uri, string path) => CloneRepositoryAsync(uri, path).GetAwaiter().GetResult();
+        public static void CloneRepository(string uri, string path, Action<string> verboseAction = null, Action<string> warningAction = null) =>
+            CloneRepositoryAsync(uri, path, verboseAction, warningAction).GetAwaiter().GetResult();
     }
 }
