@@ -19,7 +19,9 @@ namespace RepoManager
     {
         public string Push { get; set; }
 
-        public string Pull { get; set; }
+        public string Fetch { get; set; }
+
+        public override string ToString() => Fetch.Equals(Push) ? Push : $"{Push} ({Fetch})";
     }
 
     public struct Author
@@ -27,6 +29,8 @@ namespace RepoManager
         public string Name { get; set; }
 
         public string Email { get; set; }
+
+        public override string ToString() => $"{Name} ({Email})";
     }
 
     public struct Commit
@@ -38,6 +42,8 @@ namespace RepoManager
         public DateTime DateTime { get; set; }
 
         public string Hash { get; set; }
+
+        public override string ToString() => $"{Author.Name}@{DateTime.ToShortDateString()}: {Message}";
     }
 
     #endregion
