@@ -54,6 +54,26 @@ namespace RepoManager
 
         public static string GetActiveBranch(string workingDirectory) => GetActiveBranchAsync(workingDirectory).GetAwaiter().GetResult();
 
+        public static async Task<Remote> GetRemoteAsync(string workingDirectory)
+        {
+            var remoteTask = await Cli.Wrap("git")
+                .WithWorkingDirectory(workingDirectory)
+                .WithArguments(new string[] { "remote", "--verbose" })
+                .ExecuteBufferedAsync();
+
+            var standardOutput = remoteTask.StandardOutput
+                .Split(new char[] { '\t', ' ' })
+                .Where(line => !line.Contains("origin") && !line.Contains('('));
+
+            return new Remote
+            {
+                Fetch = standardOutput.First().ToString(),
+                Push = standardOutput.Last().ToString()
+            };
+        }
+
+        public static Remote GetRemote(string workingDirectory) => GetRemoteAsync(workingDirectory).GetAwaiter().GetResult();
+
         public static async Task<Commit> GetLastCommitAsync(string workingDirectory)
         {
             var commitTask = await Cli.Wrap("git")
