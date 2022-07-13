@@ -17,7 +17,7 @@ namespace RepoManager
 
         public long Size { get; set; }
 
-        public string Remote { get; set; }
+        public Remote Remote { get; set; }
 
         public string DefaultBranch { get; set; }
 
@@ -43,23 +43,28 @@ namespace RepoManager
 
         private IEnumerable<FileInfo> Files { get; set; }
 
-        public Repository(string name, string container)
+        public Repository(string name, string container, bool detailed)
         {
             Name = name;
             Container = container;
             Path = System.IO.Path.Combine(container, name);
-            GitPath = System.IO.Path.Combine(container, name, ".git");
-            DirectoryInfo = new DirectoryInfo(Path);
-            Files = DirectoryInfo.EnumerateFiles("*", SearchOption.AllDirectories);
-            Size = Files.Sum(file => file.Length);
-            DefaultBranch = Git.GetDefaultBranch(GitPath);
-            ActiveBranch = Git.GetActiveBranch(GitPath);
-            // FileCount
-            TotalFileCount = Files.Count();
-            Authors = Git.GetAuthors(GitPath).ToList();
-            CommitCount = Git.GetCommitCount(GitPath, DefaultBranch);
-            NewCommitCount = Git.GetCommitCount(GitPath, ActiveBranch) - CommitCount;
-            LastCommit = Git.GetLastCommit(GitPath);
+
+            if (detailed)
+            {
+                GitPath = System.IO.Path.Combine(container, name, ".git");
+                DirectoryInfo = new DirectoryInfo(Path);
+                Files = DirectoryInfo.EnumerateFiles("*", SearchOption.AllDirectories);
+                Size = Files.Sum(file => file.Length);
+                Remote = Git.GetRemote(GitPath);
+                DefaultBranch = Git.GetDefaultBranch(GitPath);
+                ActiveBranch = Git.GetActiveBranch(GitPath);
+                // FileCount
+                TotalFileCount = Files.Count();
+                Authors = Git.GetAuthors(GitPath).ToList();
+                CommitCount = Git.GetCommitCount(GitPath, DefaultBranch);
+                NewCommitCount = Git.GetCommitCount(GitPath, ActiveBranch) - CommitCount;
+                LastCommit = Git.GetLastCommit(GitPath);
+            }
         }
     }
 }

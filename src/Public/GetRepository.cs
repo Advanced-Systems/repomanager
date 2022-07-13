@@ -23,6 +23,10 @@ namespace RepoManager
         [Parameter(ParameterSetName = "Name", HelpMessage = "Path to repository container")]
         public string Path { get; set; }
 
+        [Parameter(ParameterSetName = "All")]
+        [Parameter(ParameterSetName = "Name")]
+        public SwitchParameter Detailed { get; set; }
+
         private Configuration Configuration { get; set; }
 
         protected override void BeginProcessing()
@@ -44,7 +48,7 @@ namespace RepoManager
             {
                 foreach (var name in Directory.GetDirectories(Path).Select(System.IO.Path.GetFileName))
                 {
-                    var repository = new Repository(name, container: Path);
+                    var repository = new Repository(name, Path, Detailed.IsPresent);
                     WriteObject(repository);
                 }
             }
@@ -54,7 +58,7 @@ namespace RepoManager
                 {
                     try
                     {
-                        var repository = new Repository(name, container: Path);
+                        var repository = new Repository(name, Path, Detailed.IsPresent);
                         WriteObject(repository);
                     }
                     catch (DirectoryNotFoundException exception)
