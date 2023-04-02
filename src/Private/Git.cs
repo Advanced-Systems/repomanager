@@ -214,7 +214,7 @@ namespace RepoManager
                 Message = result[0],
                 Hash = result[1],
                 Author = new Author { Name = result[2], Email = result[3] },
-                DateTime = Utils.ConvertToDateTime(unixTimeStamp: Convert.ToDouble(result[4]))
+                DateTime = DateTimeOffset.FromUnixTimeSeconds(long.Parse(result[4])).DateTime
             };
         }
 
