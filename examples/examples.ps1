@@ -20,10 +20,10 @@ $repos = grepo -All | select -ExpandProperty Name
 $repos | rmrepo -WhatIf
 
 # retrieve the author's email address from the last commit
-$lastCommit = grepo dtui -Detailed | select -ExpandProperty LastCommit
+$lastCommit = grepo dtui | select -ExpandProperty LastCommit
 echo $lastCommit.Author.Email
 
 # inspect the diff of the last commit in repomanager
-$repomanager = grepo repomanager -Detailed
+$repomanager = Get-Repository repomanager
 $lastCommit = $repomanager | select -ExpandProperty LastCommit
 git --git-dir=$($repomanager.GitPath) log -n 1 $lastCommit.Hash --patch
