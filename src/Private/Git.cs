@@ -15,30 +15,30 @@ namespace RepoManager
 
         public static async Task<string> GetConfigAsync(string key, Scope scope)
         {
-            var configTask = await Cli.Wrap("git")
+            var configCommand = await Cli.Wrap("git")
                 .WithArguments(new string[] { "config", $"--{scope.ToString().ToLower()}", key })
                 .ExecuteBufferedAsync();
 
-            return configTask.StandardOutput.RemoveLineBreaks();
+            return configCommand.StandardOutput.ReplaceLineEndings(string.Empty);
         }
 
         public static string GetConfig(string key, Scope scope) => GetConfigAsync(key, scope).GetAwaiter().GetResult();
 
         public static async Task<Remote> GetRemoteAsync(string workingDirectory)
         {
-            var remoteTask = await Cli.Wrap("git")
+            var remoteCommand = await Cli.Wrap("git")
                 .WithWorkingDirectory(workingDirectory)
                 .WithArguments(new string[] { "remote", "--verbose" })
                 .ExecuteBufferedAsync();
 
-            var standardOutput = remoteTask.StandardOutput
+            var result = remoteCommand.StandardOutput
                 .Split(new char[] { '\t', ' ' })
                 .Where(line => !line.Contains("origin") && !line.Contains('('));
 
             return new Remote
             {
-                Fetch = standardOutput.First().ToString(),
-                Push = standardOutput.Last().ToString()
+                Fetch = result.First().ToString(),
+                Push = result.Last().ToString()
             };
         }
 
@@ -50,7 +50,7 @@ namespace RepoManager
 
         public static async Task FetchAsync(string workingDirectory, bool all = false)
         {
-            var fetchTask = await Cli.Wrap("git")
+            var fetchCommand = await Cli.Wrap("git")
                 .WithWorkingDirectory(workingDirectory)
                 .WithArguments(new string[] { "fetch", all ? "--all" : string.Empty })
                 .ExecuteAsync();
@@ -67,7 +67,7 @@ namespace RepoManager
                     verboseAction($"Cloning '{uri}' into '{path}' . . .");
                 }
 
-                var cloneTask = await Cli.Wrap("git")
+                var cloneCommand = await Cli.Wrap("git")
                     .WithArguments(new string[] { "clone", uri, path, "--quiet" })
                     .ExecuteAsync();
             }
@@ -85,12 +85,12 @@ namespace RepoManager
 
         public static async Task<IEnumerable<string>> GetTrackedFilesAsync(string workingDirectory, string branch)
         {
-            var command = await Cli.Wrap("git")
+            var listCommand = await Cli.Wrap("git")
                 .WithWorkingDirectory(workingDirectory)
                 .WithArguments(new string[] { "ls-tree", "-r", branch, "--name-only" })
                 .ExecuteBufferedAsync();
 
-            return command.StandardOutput.Split(Environment.NewLine.ToArray()).SkipLast(1);
+            return listCommand.StandardOutput.Split(Environment.NewLine.ToArray()).SkipLast(1);
         }
 
         public static IEnumerable<string> GetTrackedFiles(string workingDirectory, string branch) => GetTrackedFilesAsync(workingDirectory, branch).GetAwaiter().GetResult();
@@ -101,44 +101,36 @@ namespace RepoManager
 
         public static async Task<IEnumerable<string>> GetLocalBranchesAsync(string workingDirectory)
         {
-            var branchTask = await Cli.Wrap("git")
+            var branchCommand = await Cli.Wrap("git")
                 .WithWorkingDirectory(workingDirectory)
                 .WithArguments(new string[] { "branch", "--format=%(refname:short)" })
                 .ExecuteBufferedAsync();
 
-            return branchTask.StandardOutput.Split(Environment.NewLine.ToArray(), StringSplitOptions.RemoveEmptyEntries);
+            return branchCommand.StandardOutput.Split(Environment.NewLine.ToArray(), StringSplitOptions.RemoveEmptyEntries);
         }
 
         public static IEnumerable<string> GetLocalBranches(string workingDirectory) => GetLocalBranchesAsync(workingDirectory).GetAwaiter().GetResult();
 
         public static async Task<string> GetDefaultBranchAsync(string workingDirectory)
         {
-            var branchTask = await Cli.Wrap("git")
+            var branchCommand = await Cli.Wrap("git")
                 .WithWorkingDirectory(workingDirectory)
-                .WithArguments(new string[] { "remote", "show", "origin" })
+                .WithArguments(new string[] { "config", "--get", "init.defaultBranch" })
                 .ExecuteBufferedAsync();
 
-            var standardOutput = branchTask.StandardOutput.Split(Environment.NewLine.ToArray());
-
-            return standardOutput
-                .Where(line => line.Contains("HEAD branch"))
-                .First()
-                .Split(":")
-                .Last()
-                .Trim()
-                .RemoveLineBreaks();
+            return branchCommand.StandardOutput.ReplaceLineEndings(string.Empty);
         }
 
         public static string GetDefaultBranch(string workingDirectory) => GetDefaultBranchAsync(workingDirectory).GetAwaiter().GetResult();
 
         public static async Task<string> GetCurrentBranchAsync(string workingDirectory)
         {
-            var command = await Cli.Wrap("git")
+            var branchCommand = await Cli.Wrap("git")
                 .WithWorkingDirectory(workingDirectory)
                 .WithArguments(new string[] { "branch", "--show-current" })
                 .ExecuteBufferedAsync();
 
-            return command.StandardOutput.RemoveLineBreaks();
+            return branchCommand.StandardOutput.ReplaceLineEndings(string.Empty);
         }
 
         public static string GetCurrentBranch(string workingDirectory) => GetCurrentBranchAsync(workingDirectory).GetAwaiter().GetResult();
@@ -150,7 +142,7 @@ namespace RepoManager
                 await FetchAsync(workingDirectory, all: true);
             }
 
-            var branchTask = await Cli.Wrap("git")
+            var branchCommand = await Cli.Wrap("git")
                 .WithWorkingDirectory(workingDirectory)
                 .WithArguments(new string[] { "branch", "--remote", "--format=%(refname:lstrip=3)" })
                 .ExecuteBufferedAsync();
@@ -161,8 +153,8 @@ namespace RepoManager
                 "main"
             };
 
-            var standardOutput = branchTask.StandardOutput.Split(Environment.NewLine.ToCharArray());
-            return standardOutput.Where(branch => !string.IsNullOrEmpty(branch) && !branchFilter.Contains(branch));
+            var result = branchCommand.StandardOutput.Split(Environment.NewLine.ToCharArray());
+            return result.Where(branch => !string.IsNullOrEmpty(branch) && !branchFilter.Contains(branch));
         }
 
         public static IEnumerable<string> GetRemoteBranches(string workingDirectory, bool fetchAll = true) =>
@@ -170,7 +162,7 @@ namespace RepoManager
 
         public static async Task TrackBranchAsync(string workingDirectory, string branch)
         {
-            var trackTask = await Cli.Wrap("git")
+            var branchCommand = await Cli.Wrap("git")
                 .WithWorkingDirectory(workingDirectory)
                 .WithArguments(new string[] { "branch", "--track", branch, $"origin/{branch}" })
                 .ExecuteAsync();
@@ -210,19 +202,19 @@ namespace RepoManager
 
         public static async Task<Commit> GetLastCommitAsync(string workingDirectory)
         {
-            var commitTask = await Cli.Wrap("git")
+            var logCommand = await Cli.Wrap("git")
                 .WithWorkingDirectory(workingDirectory)
                 .WithArguments(new string[] { "log", "-n", "1", "--format='%s%n%H%n%an%n%ae%n%at'" })
                 .ExecuteBufferedAsync();
 
-            var standardOutput = commitTask.StandardOutput.Replace("'", "").Split(Environment.NewLine.ToArray()).ToList();
+            var result = logCommand.StandardOutput.Replace("'", "").Split(Environment.NewLine.ToArray()).ToList();
 
             return new Commit
             {
-                Message = standardOutput[0],
-                Hash = standardOutput[1],
-                Author = new Author { Name = standardOutput[2], Email = standardOutput[3] },
-                DateTime = Utils.ConvertToDateTime(unixTimeStamp: Convert.ToDouble(standardOutput[4]))
+                Message = result[0],
+                Hash = result[1],
+                Author = new Author { Name = result[2], Email = result[3] },
+                DateTime = Utils.ConvertToDateTime(unixTimeStamp: Convert.ToDouble(result[4]))
             };
         }
 
@@ -230,12 +222,12 @@ namespace RepoManager
 
         public static async Task<int> GetCommitCountAsync(string workingDirectory, string branch)
         {
-            var countTask = await Cli.Wrap("git")
+            var revCommand = await Cli.Wrap("git")
                 .WithWorkingDirectory(workingDirectory)
                 .WithArguments(new string[] { "rev-list", "--count", branch })
                 .ExecuteBufferedAsync();
 
-            return Convert.ToInt32(countTask.StandardOutput);
+            return Convert.ToInt32(revCommand.StandardOutput);
         }
 
         public static int GetCommitCount(string workingDirectory, string branch) => GetCommitCountAsync(workingDirectory, branch).GetAwaiter().GetResult();
@@ -246,14 +238,14 @@ namespace RepoManager
 
         public static async Task<IEnumerable<Author>> GetAuthorsAsync(string workingDirectory)
         {
-            var authorTask = await Cli.Wrap("git")
+            var logCommand = await Cli.Wrap("git")
                 .WithWorkingDirectory(workingDirectory)
                 .WithArguments(new string[] { "log", "--format='%an,%ae'" })
                 .ExecuteBufferedAsync();
 
-            var standardOutput = authorTask.StandardOutput.Split(Environment.NewLine.ToArray()).Distinct();
+            var result = logCommand.StandardOutput.Split(Environment.NewLine.ToArray()).Distinct();
 
-            return standardOutput
+            return result
                 .Where(line => !string.IsNullOrEmpty(line))
                 .Select(line =>
                 {

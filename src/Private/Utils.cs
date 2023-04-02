@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Net.Http;
 
@@ -10,7 +11,8 @@ namespace RepoManager
 {
     internal static class Utils
     {
-        public static string RemoveLineBreaks(this string @string) => @string.Replace("\r\n", string.Empty).Replace("\r", string.Empty).Replace("\n", string.Empty);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static string ReplaceLineEndings(this string @string, string newValue) => @string.Replace("\r\n", string.Empty).Replace("\r", string.Empty).Replace("\n", string.Empty);
 
         public static IEnumerable<T> ForEach<T>(this IEnumerable<T> @this, Action<T> action)
         {
