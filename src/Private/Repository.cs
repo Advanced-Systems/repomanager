@@ -7,64 +7,64 @@ namespace RepoManager
 {
     internal sealed class Repository
     {
-        public string Name { get; set; }
+        #region Public Properties
 
-        public string Container { get; set; }
+        public string Name { get; }
 
-        public string Path { get; set; }
+        public string Container { get; }
 
-        public string GitPath { get; set; }
+        public string Directory { get; }
 
-        public long Size { get; set; }
+        public string Path { get; }
 
-        public Remote Remote { get; set; }
+        public long Size { get; }
 
-        public string DefaultBranch { get; set; }
+        public Remote Remote { get; }
 
-        public string ActiveBranch { get; set; }
+        public string DefaultBranch { get; }
 
-        public List<string> Language { get; set; }
+        public string CurrentBranch { get; }
 
-        public string License { get; set; }
+        //public List<string> Language { get; }
 
-        public int FileCount { get; set; }
+        //public string License { get; }
 
-        public int TotalFileCount { get; set; }
+        public int FileCount { get; }
 
-        public List<Author> Authors { get; set; }
+        public int TotalFileCount { get; }
 
-        public int CommitCount { get; set; }
+        public List<Author> Authors { get; }
 
-        public int NewCommitCount { get; set; }
+        public int CommitCount { get; }
 
-        public Commit LastCommit { get; set; }
+        public int NewCommitCount { get; }
 
-        private DirectoryInfo DirectoryInfo { get; set; }
+        public Commit LastCommit { get; }
 
-        private IEnumerable<FileInfo> Files { get; set; }
+        #endregion
 
-        public Repository(string name, string container, bool detailed)
+        public Repository(string name, string container)
         {
             Name = name;
             Container = container;
-            Path = System.IO.Path.Combine(container, name);
+            Directory = System.IO.Path.Combine(container, name);
+            Path = System.IO.Path.Combine(container, name, ".git");
 
-            if (detailed)
-            {
-                GitPath = System.IO.Path.Combine(container, name, ".git");
-                DirectoryInfo = new DirectoryInfo(Path);
-                Files = DirectoryInfo.EnumerateFiles("*", SearchOption.AllDirectories);
-                Size = Files.Sum(file => file.Length);
-                Remote = Git.GetRemote(GitPath);
-                DefaultBranch = Git.GetDefaultBranch(GitPath);
-                ActiveBranch = Git.GetActiveBranch(GitPath);
-                // FileCount
-                TotalFileCount = Files.Count();
-                Authors = Git.GetAuthors(GitPath).ToList();
-                CommitCount = Git.GetCommitCount(GitPath, DefaultBranch);
-                NewCommitCount = Git.GetCommitCount(GitPath, ActiveBranch) - CommitCount;
-                LastCommit = Git.GetLastCommit(GitPath);
-            }
+            var directoryInfo = new DirectoryInfo(Directory);
+            var files = directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories);
+
+            Size = files.Sum(f => f.Length);
+            Remote = Git.GetRemote(Path);
+            DefaultBranch = Git.GetDefaultBranch(Path);
+            CurrentBranch = Git.GetCurrentBranch(Path);
+            // TODO: Language
+            // TODO: License
+            FileCount = Git.GetTrackedFiles(Path, CurrentBranch).Count();
+            TotalFileCount = files.Count();
+            Authors = Git.GetAuthors(Path).ToList();
+            CommitCount = Git.GetCommitCount(Path, DefaultBranch);
+            NewCommitCount = Git.GetCommitCount(Path, CurrentBranch) - CommitCount;
+            LastCommit = Git.GetLastCommit(Path);
         }
     }
 }
