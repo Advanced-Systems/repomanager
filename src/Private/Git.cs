@@ -144,7 +144,7 @@ namespace RepoManager
 
             var branchCommand = await Cli.Wrap("git")
                 .WithWorkingDirectory(workingDirectory)
-                .WithArguments(new string[] { "branch", "--remote", "--format=%(refname:lstrip=3)" })
+                .WithArguments(new string[] { "branch", "--remote", "--format='%(refname:lstrip=3)'" })
                 .ExecuteBufferedAsync();
 
             var branchFilter = new List<string> {
@@ -207,7 +207,7 @@ namespace RepoManager
                 .WithArguments(new string[] { "log", "-n", "1", "--format='%s%n%H%n%an%n%ae%n%at'" })
                 .ExecuteBufferedAsync();
 
-            var result = logCommand.StandardOutput.Replace("'", "").Split(Environment.NewLine.ToArray()).ToList();
+            var result = logCommand.StandardOutput.Replace("'", string.Empty).Split(Environment.NewLine.ToArray()).ToList();
 
             return new Commit
             {
@@ -249,7 +249,7 @@ namespace RepoManager
                 .Where(line => !string.IsNullOrEmpty(line))
                 .Select(line =>
                 {
-                    string[] log = line.Replace("'", "").Split(',');
+                    string[] log = line.Replace("'", string.Empty).Split(',');
                     return new Author { Name = log[0], Email = log[1] };
                 });
         }
