@@ -28,14 +28,10 @@ namespace RepoManager
         {
             var configurationManager = new ConfigurationManager();
             var container = configurationManager.Configuration.Container;
-            string path = container.Where(repo => repo.IsDefault).Select(repo => repo.Path).First();
 
-            var commandElements = commandAst.CommandElements.Select(ast => ast.Extent.Text);
-
-            if (commandElements.Any(node => node.Contains("-Path")))
-            {
-                path = commandElements.SkipWhile(node => !node.Equals("-Path")).Skip(1).First();
-            }
+            string path = fakeBoundParameters.Contains("Path")
+                ? fakeBoundParameters["Path"].ToString()
+                : container.Where(repo => repo.IsDefault).Select(repo => repo.Path).First();
 
             var suggestedRepositories = Directory.GetDirectories(path).Select(System.IO.Path.GetFileName);
 
