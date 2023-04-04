@@ -458,3 +458,8 @@ $RECYCLE.BIN/
 ## PowerShell
 ##
 modules/*
+
+##
+## Miscellaneous
+##
+notes.txt
