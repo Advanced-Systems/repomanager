@@ -10,68 +10,83 @@ namespace RepoManager
     [Cmdlet(VerbsCommon.Get, "Branch")]
     public class GetBranchCommand : PSCmdlet
     {
-        [ValidateNotNullOrEmpty()]
-        [ArgumentCompleter(typeof(NameArgumentCompleter))]
-        [Parameter(Position = 0, Mandatory = true, ParameterSetName = "All", HelpMessage = "Repository name")]
-        [Parameter(Position = 0, Mandatory = true, ParameterSetName = "Name", HelpMessage = "Repository name")]
-        public string Name { get; set; }
+        #region parameters
 
-        [ValidateNotNullOrEmpty()]
-        [Parameter(Position = 1, Mandatory = true, ParameterSetName = "Name", HelpMessage = "Name of remote branch")]
-        public string Branch { get; set; }
-
-        [ArgumentCompleter(typeof(PathArgumentCompleter))]
-        [Parameter(Position = 2, HelpMessage = "Path to repository container")]
-        public string Path { get; set; }
+        [ArgumentCompleter(typeof(RepositoryArgumentCompleter))]
+        [Parameter(ParameterSetName = "All")]
+        [Parameter(ParameterSetName = "Branch")]
+        [Parameter(ParameterSetName = "Container", Mandatory = true)]
+        [Parameter(HelpMessage = "Repository name")]
+        public string Repository { get; set; }
 
         [Parameter(ParameterSetName = "All")]
+        [Parameter(ParameterSetName = "Branch")]
+        [Parameter(ParameterSetName = "Path", Mandatory = true)]
+        [Parameter(HelpMessage = "Path to repository")]
+        public string Path { get; set; }
+
+        [ArgumentCompleter(typeof(ContainerArgumentCompleter))]
+        [Parameter(ParameterSetName = "All")]
+        [Parameter(ParameterSetName = "Branch")]
+        [Parameter(ParameterSetName = "Container", Mandatory = true)]
+        [Parameter(HelpMessage = "Path to container")]
+        public string Container { get; set; }
+
+        [Parameter(ParameterSetName = "Branch", Mandatory = true, HelpMessage = "Name of remote branch")]
+        public string Branch { get; set; }
+
+        [Parameter(ParameterSetName = "All", Mandatory = true)]
         public SwitchParameter All { get; set; }
+
+        [Parameter()]
+        public SwitchParameter Silent { get; set; }
+
+        #endregion
 
         private Configuration Configuration { get; set; }
 
-        private string GitPath { get; set; }
+        private string GitFolder { get; set; }
+
+        private string CWD { get; set; }
 
         protected override void BeginProcessing()
         {
             var configurationManager = new ConfigurationManager();
             Configuration = configurationManager.Configuration;
 
-            Path = MyInvocation.BoundParameters.ContainsKey("Path")
-                 ? System.IO.Path.GetFullPath(Path)
+            Container = MyInvocation.BoundParameters.ContainsKey("Path")
+                 ? System.IO.Path.GetFullPath(Container)
                  : Configuration.Container
                     .Where(repo => repo.IsDefault)
                     .Select(repo => repo.Path)
                     .First();
 
-            GitPath = System.IO.Path.Combine(Path, Name, ".git");
+            if (string.IsNullOrEmpty(Repository))
+            {
+                CWD = this.CurrentProviderLocation("FileSystem").ProviderPath;
+                Repository = new DirectoryInfo(CWD).Name;
+            }
+
+            GitFolder = System.IO.Path.Combine(Container, Repository, ".git");
         }
 
         protected override void ProcessRecord()
         {
             try
             {
-                if (All.IsPresent)
+                switch(this.ParameterSetName)
                 {
-                    Git.TrackAllBranches(GitPath, WriteVerbose, WriteWarning);
-                }
-                else
-                {
-                    var localBranches = Git.GetLocalBranches(GitPath);
-
-                    if (!localBranches.Contains(Branch))
-                    {
-                        WriteVerbose($"Branch '{Branch}' set up to track 'origin/{Branch}'");
-                        Git.TrackBranch(GitPath, Branch);
-                    }
-                    else
-                    {
-                        WriteWarning($"A branch named '{Branch}' already exists");
-                    }
+                    case "All":
+                        Git.TrackAllBranches(GitFolder, Silent.IsPresent);
+                        break;
+                    case "Branch":
+                        Git.TrackBranch(GitFolder, Branch, Silent.IsPresent);
+                        break;
                 }
             }
             catch (FileNotFoundException exception)
             {
-                WriteError(new ErrorRecord(exception, "Not a Git Repository", ErrorCategory.ObjectNotFound, GitPath));
+                WriteError(new ErrorRecord(exception, "Not a Git Repository", ErrorCategory.ObjectNotFound, GitFolder));
             }
         }
 
