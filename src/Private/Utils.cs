@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Net.Http;
 
@@ -11,25 +10,10 @@ namespace RepoManager
 {
     internal static class Utils
     {
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static string ReplaceLineEndings(this string @string, string newValue) => @string.Replace("\r\n", string.Empty).Replace("\r", string.Empty).Replace("\n", string.Empty);
-
-        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> @this, Action<T> action)
-        {
-            _ = action ?? throw new ArgumentNullException(nameof(action));
-
-            foreach (T item in @this)
-            {
-                action(item);
-            }
-
-            return @this;
-        }
-
         public static void DeleteDirectoryRecursively(string path)
         {
             var directory = new DirectoryInfo(path) { Attributes = FileAttributes.Normal };
-            directory.GetFileSystemInfos("*", SearchOption.AllDirectories).ForEach(file => file.Attributes = FileAttributes.Normal);
+            foreach (var file in directory.GetFileSystemInfos("*", SearchOption.AllDirectories)) file.Attributes = FileAttributes.Normal;
             Directory.Delete(path, recursive: true);
         }
 
@@ -47,12 +31,12 @@ namespace RepoManager
                 case Provider.BitBucket:
                     response = Task.Run(() => client.GetStringAsync($"https://bitbucket.org/api/2.0/repositories/{username}")).Result;
                     var bitbucket = JObject.Parse(response)["values"];
-                    bitbucket.ForEach(repo => repositoryNames.Add(repo["name"].ToString()));
+                    foreach (var repo in bitbucket) repositoryNames.Add(repo["name"].ToString());
                     break;
                 default:
                     response = Task.Run(() => client.GetStringAsync($"https://api.github.com/users/{username}/repos")).Result;
                     var github = JArray.Parse(response);
-                    github.ForEach(repo => repositoryNames.Add(repo["name"].ToString()));
+                    foreach (var repo in github) repositoryNames.Add(repo["name"].ToString());
                     break;
             }
 
