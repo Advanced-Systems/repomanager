@@ -40,7 +40,7 @@
     AliasesToExport = @(
         'clone',    # Import-Repository
         'track',    # Get-Branch
-        'grepo',    # Get-Repository
+        'repo',    # Get-Repository
         'rmrepo'    # Remove-Repository
     )
 
