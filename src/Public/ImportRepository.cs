@@ -11,36 +11,44 @@ namespace RepoManager
     [Cmdlet(VerbsData.Import, "Repository", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Low)]
     public class ImportRepositoryCommand : PSCmdlet
     {
+        #region parameters
+
         [ValidateNotNullOrEmpty()]
-        [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true, ParameterSetName = "Uri", HelpMessage = "Repository URI")]
+        [Parameter(ParameterSetName = "Uri", Position = 0, Mandatory = true, ValueFromPipeline = true, HelpMessage = "Repository URI")]
         public List<string> Uri { get; set; }
 
-        [ArgumentCompleter(typeof(PathArgumentCompleter))]
-        [Parameter(HelpMessage = "Path to repository container")]
-        public string Path { get; set; }
+        [ArgumentCompleter(typeof(ContainerArgumentCompleter))]
+        [Parameter(ParameterSetName = "Container", HelpMessage = "Path to container")]
+        public string Container { get; set; }
+
+        [Parameter(ParameterSetName = "Container", Mandatory = true, HelpMessage = "Repository name")]
+        public string Repository { get; set; }
+
+        [Parameter(ParameterSetName = "All")]
+        [Parameter(ParameterSetName = "Container")]
+        [Parameter(HelpMessage = "Git user name")]
+        public string User { get; set; }
+
+        [Parameter(ParameterSetName = "All")]
+        [Parameter(ParameterSetName = "Container")]
+        [Parameter(HelpMessage = "Hosting service")]
+        public Provider Provider { get; set; }
+
+        [Parameter(ParameterSetName = "All")]
+        [Parameter(ParameterSetName = "Container")]
+        [Parameter(HelpMessage = "Network protocol")]
+        public Protocol Protocol { get; set; }
+
+        [Parameter(ParameterSetName = "All", Mandatory = true)]
+        public SwitchParameter All { get; set; }
 
         [Parameter()]
         public SwitchParameter TrackAllBranches { get; set; }
 
-        [ValidateNotNullOrEmpty()]
-        [Parameter(Mandatory = true, ParameterSetName = "All")]
-        public SwitchParameter All { get; set; }
+        [Parameter()]
+        public SwitchParameter Silent { get; set; }
 
-        [Parameter(ParameterSetName = "All", HelpMessage = "Client user name")]
-        [Parameter(ParameterSetName = "Name", HelpMessage = "Client user name")]
-        public string User { get; set; }
-
-        [ValidateNotNullOrEmpty()]
-        [Parameter(Mandatory = true, ParameterSetName = "Name", HelpMessage = "Repository name")]
-        public string Name { get; set; }
-
-        [Parameter(ParameterSetName = "All", HelpMessage = "Clone protocol")]
-        [Parameter(ParameterSetName = "Name", HelpMessage = "Clone protocol")]
-        public Protocol Protocol { get; set; }
-
-        [Parameter(ParameterSetName = "All", HelpMessage = "Hosting service")]
-        [Parameter(ParameterSetName = "Name", HelpMessage = "Hosting service")]
-        public Provider Provider { get; set; }
+        #endregion
 
         private string TopLevelDomain { get; set; }
 
@@ -53,14 +61,14 @@ namespace RepoManager
             var configurationManager = new ConfigurationManager();
             Configuration = configurationManager.Configuration;
 
-            Path = MyInvocation.BoundParameters.ContainsKey("Path")
-                 ? System.IO.Path.GetFullPath(Path)
+            Container = MyInvocation.BoundParameters.ContainsKey("Path")
+                 ? System.IO.Path.GetFullPath(Container)
                  : Configuration.Container
                     .Where(repo => repo.IsDefault)
                     .Select(repo => repo.Path)
                     .First();
 
-            User = MyInvocation.BoundParameters.ContainsKey("Name") && !MyInvocation.BoundParameters.ContainsKey("User")
+            User = (MyInvocation.BoundParameters.ContainsKey("Repository") || MyInvocation.BoundParameters.ContainsKey("All")) && !MyInvocation.BoundParameters.ContainsKey("User")
                  ? Git.GetConfig("user.name", Scope.Global)
                  : User;
 
@@ -90,40 +98,40 @@ namespace RepoManager
                 foreach (string repoName in repoNames)
                 {
                     string uri = $"{Hostname}{User}/{repoName}.git";
-                    string repoPath = System.IO.Path.Combine(Path, repoName);
+                    string repoPath = System.IO.Path.Combine(Container, repoName);
                     int percent = Convert.ToInt32(Math.Round(activityId * 100F / count));
 
-                    var progress = new ProgressRecord(activityId, uri, $"Cloning {repoName} to '{Path}' . . .");
+                    var progress = new ProgressRecord(activityId, uri, $"Cloning {repoName} to '{Container}' . . .");
                     progress.StatusDescription = $"{percent}%";
                     progress.PercentComplete = percent;
 
                     WriteProgress(progress);
 
-                    if (ShouldProcess(uri, $"Clone repository {repoName} to '{Path}'"))
+                    if (ShouldProcess(uri, $"Clone repository {repoName} to '{Container}'"))
                     {
-                        Git.CloneRepository(uri, repoPath, WriteVerbose, WriteWarning);
+                        Git.CloneRepository(uri, repoPath, Silent.IsPresent, WriteWarning);
 
                         if (TrackAllBranches.IsPresent)
                         {
-                            Git.TrackAllBranches(System.IO.Path.Combine(repoPath, ".git"), WriteVerbose, WriteWarning);
+                            Git.TrackAllBranches(System.IO.Path.Combine(repoPath, ".git"));
                         }
                     }
 
                     activityId++;
                 }
             }
-            else if (MyInvocation.BoundParameters.ContainsKey("Name"))
+            else if (MyInvocation.BoundParameters.ContainsKey("Repository"))
             {
-                string uri = $"{Hostname}{User}/{Name}.git";
-                string repoPath = System.IO.Path.Combine(Path, Name);
+                string uri = $"{Hostname}{User}/{Repository}.git";
+                string repoPath = System.IO.Path.Combine(Container, Repository);
 
-                if (ShouldProcess(uri, $"Clone repository {Name} to '{Path}'"))
+                if (ShouldProcess(uri, $"Clone repository {Repository} to '{Container}'"))
                 {
-                    Git.CloneRepository(uri, repoPath, WriteVerbose, WriteWarning);
+                    Git.CloneRepository(uri, repoPath, Silent.IsPresent, WriteWarning);
 
                     if (TrackAllBranches.IsPresent)
                     {
-                        Git.TrackAllBranches(repoPath, WriteVerbose, WriteWarning);
+                        Git.TrackAllBranches(repoPath, Silent.IsPresent);
                     }
                 }
             }
@@ -132,16 +140,16 @@ namespace RepoManager
                 foreach (string u in Uri)
                 {
                     string repoName = u.Split('/').Last().Split('.').First();
-                    string repoPath = System.IO.Path.Combine(Path, repoName);
+                    string repoPath = System.IO.Path.Combine(Container, repoName);
                     string gitPath = System.IO.Path.Combine(repoPath, ".git");
 
-                    if (ShouldProcess(u, $"Clone repository {repoName} to '{Path}'"))
+                    if (ShouldProcess(u, $"Clone repository {repoName} to '{Container}'"))
                     {
-                        Git.CloneRepository(u, repoPath, WriteVerbose, WriteWarning);
+                        Git.CloneRepository(u, repoPath, Silent.IsPresent, WriteWarning);
 
                         if (TrackAllBranches.IsPresent && Directory.Exists(gitPath))
                         {
-                            Git.TrackAllBranches(gitPath, WriteVerbose, WriteWarning);
+                            Git.TrackAllBranches(gitPath, Silent.IsPresent);
                         }
                     }
                 }
