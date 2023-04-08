@@ -12,8 +12,6 @@ namespace RepoManager
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static string ReplaceLineEndings(this string @string, string newValue) => @string.Replace("\r\n", string.Empty).Replace("\r", string.Empty).Replace("\n", string.Empty);
 
-
-
         public static ArgumentsBuilder AddOption(this ArgumentsBuilder args, bool condition, string option)
         {
             if (condition) args.Add(option);

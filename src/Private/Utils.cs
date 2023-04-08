@@ -33,6 +33,7 @@ namespace RepoManager
                     var bitbucket = JObject.Parse(response)["values"];
                     foreach (var repo in bitbucket) repositoryNames.Add(repo["name"].ToString());
                     break;
+                case Provider.GitHub:
                 default:
                     response = Task.Run(() => client.GetStringAsync($"https://api.github.com/users/{username}/repos")).Result;
                     var github = JArray.Parse(response);
