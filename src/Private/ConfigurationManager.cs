@@ -10,24 +10,25 @@ namespace RepoManager
     {
         public const string ModuleName = "RepoManager";
 
-        public string ConfigurationDirectory
+        public static string Folder
         {
             get
             {
-                string configurationDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), ModuleName);
-
-                if (!Directory.Exists(configurationDirectory))
+                string moduleFolder = Environment.OSVersion.Platform switch
                 {
-                    Directory.CreateDirectory(configurationDirectory);
-                }
+                    PlatformID.Win32NT => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), ModuleName),
+                    /* Unix */ _ => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), $".{ModuleName.ToLower()}"),
+                };
 
-                return configurationDirectory;
+                if (!Directory.Exists(moduleFolder)) Directory.CreateDirectory(moduleFolder);
+
+                return moduleFolder;
             }
         }
 
-        public string ConfigurationPath => Path.Combine(ConfigurationDirectory, "config.json");
+        public string ConfigurationPath => System.IO.Path.Combine(Folder, "config.json");
 
-        public JsonSerializerSettings JsonSettings
+        public JsonSerializerSettings ConfigurationSerializer
         {
             get
             {
@@ -43,15 +44,13 @@ namespace RepoManager
         {
             get
             {
-                return JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(ConfigurationPath), JsonSettings);
+                return JsonConvert.DeserializeObject<Configuration>(File.ReadAllText(ConfigurationPath), ConfigurationSerializer);
             }
         }
 
         public ConfigurationManager()
         {
-            string configurationPath = ConfigurationPath;
-
-            if (!File.Exists(configurationPath))
+            if (!File.Exists(ConfigurationPath))
             {
                 var configuration = new Configuration
                 {
@@ -60,8 +59,8 @@ namespace RepoManager
                     Provider = Provider.GitHub
                 };
 
-                string data = JsonConvert.SerializeObject(configuration, JsonSettings);
-                File.WriteAllText(configurationPath, data);
+                string data = JsonConvert.SerializeObject(configuration, ConfigurationSerializer);
+                File.WriteAllText(ConfigurationPath, data);
             }
         }
     }
