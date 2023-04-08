@@ -8,11 +8,12 @@
 
 ## Basic Usage
 
-Open the configuration file in [neovim](https://github.com/neovim/neovim) to
-define more repository container:
+Open the configuration file to customize repository container. The exact location
+of the settings file varies between the two major platforms:
 
 ```powershell
-nvim $env:AppData\RepoManager\config.json
+$windows = $env:AppData\RepoManager\config.json
+$unix = ~\.repomanager\config.json
 ```
 
 ## Remarks
@@ -25,7 +26,7 @@ Start-Service ssh-agent -StartupType Automatic
 
 If your private SSH key is not stored in one of the defaults locations (like
 `~/.ssh/id_rsa`), you'll need to tell your SSH authentication agent where to find
-it. To add your key to `ssh-agent`, use
+it. To add your key to `ssh-agent`, run
 
 ```powershell
 ssh-add $home\.ssh\<private_key>
