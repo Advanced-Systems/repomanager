@@ -8,7 +8,7 @@ using System.Management.Automation;
 namespace RepoManager
 {
     [Alias("clone")]
-    [Cmdlet(VerbsData.Import, "Repository", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Low)]
+    [Cmdlet(VerbsData.Import, "Repository", DefaultParameterSetName = "Container", SupportsShouldProcess = true, ConfirmImpact = ConfirmImpact.Low)]
     public class ImportRepositoryCommand : PSCmdlet
     {
         #region parameters
