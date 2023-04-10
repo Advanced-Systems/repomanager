@@ -16,5 +16,8 @@ namespace RepoManager
 
         [JsonConverter(typeof(StringEnumConverter))]
         public Provider Provider { get; set; }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public Language Language { get; set; }
     }
 }

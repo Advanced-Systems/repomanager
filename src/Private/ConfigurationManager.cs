@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
-
+using System.Text;
 using Newtonsoft.Json;
 
 namespace RepoManager
@@ -9,6 +9,19 @@ namespace RepoManager
     internal sealed class ConfigurationManager
     {
         public const string ModuleName = "RepoManager";
+
+        public void SetConsoleEncoding()
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+            Console.OutputEncoding = this.Configuration.Language switch
+            {
+                Language.Japanese => Encoding.GetEncoding(65001),
+                Language.Chinese => Encoding.GetEncoding(50227),
+                Language.German => Encoding.GetEncoding(1252),
+                _ => Encoding.Default
+            };
+        }
 
         public static string Folder
         {
@@ -56,12 +69,15 @@ namespace RepoManager
                 {
                     Container = new List<RepositoryContainer> { new RepositoryContainer() },
                     Protocol = Protocol.HTTPS,
-                    Provider = Provider.GitHub
+                    Provider = Provider.GitHub,
+                    Language = Language.English,
                 };
 
                 string data = JsonConvert.SerializeObject(configuration, ConfigurationSerializer);
                 File.WriteAllText(ConfigurationPath, data);
             }
+
+            SetConsoleEncoding();
         }
     }
 }
