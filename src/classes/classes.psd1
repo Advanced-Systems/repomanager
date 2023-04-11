@@ -1,7 +1,0 @@
-@{
-    order = @(
-        ,'RepoManagerContainer'
-        ,'RepoManagerConfiguration'
-        ,'RepoManagerRepository'
-    )
-}
